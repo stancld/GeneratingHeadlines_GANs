@@ -48,7 +48,7 @@ user_password = "dankodorkamichaelzak"
 # username of repo owner
 owner_username = 'stancld'
 # reponame
-reponame = 'NLP_Project'
+reponame = 'GeneratingHeadlines_GANs'
 
 # generate 
 add_origin_link = (
@@ -61,23 +61,25 @@ print("Link used for git cooperation:\n{}".format(add_origin_link))
 """**Clone GitHub repo on the personal drive**"""
 
 # Commented out IPython magic to ensure Python compatibility.
-## Clone GitHub repo to the desired folder
-# Mount drive
-from google.colab import drive
-drive.mount("/content/drive", force_remount = True)
+# %%time
+# 
+# ## Clone GitHub repo to the desired folder
+# # Mount drive
+# from google.colab import drive
+# drive.mount("/content/drive", force_remount = True)
 # %cd "drive/My Drive/projects"
-
-# Remove NLP_Project if presented and clone up-to-date repo
-!rm -r NLP_Project
-!git clone https://github.com/stancld/NLP_Project.git
-
-# Go to the NLP_Project folder
-# %cd NLP_Project
-
-# Config global user and add origin enabling us to execute push commands
-!git config --global user.email user_email
-!git remote rm origin
-!git remote add origin https://gansforlife:dankodorkamichaelzakgithub@github.com/stancld/NLP_Project.git
+# 
+# # Remove NLP_Project if presented and clone up-to-date repo
+# !rm -r GeneratingHeadlines_GANs
+# !git clone https://github.com/stancld/GeneratingHeadlines_GANs.git
+# 
+# # Go to the NLP_Project folder
+# %cd GeneratingHeadlines_GANs
+# 
+# # Config global user and add origin enabling us to execute push commands
+# !git config --global user.email user_email
+# !git remote rm origin
+# !git remote add origin https://gansforlife:dankodorkamichaelzakgithub@github.com/stancld/GeneratingHeadlines_GANs.git
 
 """**Function push_to_repo**"""
 
@@ -87,13 +89,13 @@ def push_to_repo(file, file_path):
   """
   np.savetxt(fname = 'Trained_models/{}.txt'.format(file_path), X = file)
   !git remote rm origin
-  !git remote add origin https://gansforlife:dankodorkamichaelzak@github.com/stancld/NLP_Project.git
+  !git remote add origin https://gansforlife:dankodorkamichaelzak@github.com/stancld/GeneratingHeadlines_GANs.git
   !git checkout master
   !git pull origin master
   !git branch models_branch
   !git checkout models_branch
   !git add .
-  !git commit -m "weight updates"
+  !git commit -m "model state update"
   !git checkout master
   !git merge models_branch
   !git push -u origin master
@@ -103,21 +105,26 @@ def push_to_repo(file, file_path):
 **Import essential libraries and load necessary conditionalities**
 """
 
+# Commented out IPython magic to ensure Python compatibility.
 import numpy as np
 import pandas as pd
-import re
-import unicodedata
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+import re
+import unicodedata
 import nltk
 from nltk.tokenize.toktok import ToktokTokenizer
 from nltk.corpus import stopwords
 
 from gensim.models import Word2Vec
+
+# %matplotlib inline
 
 nltk.download('stopwords')
 
@@ -131,7 +138,11 @@ print(torch.cuda.get_device_name())
 
 run Code/contractions.py
 
+# code for text_preprocessing()
 run Code/text_preprocessing.py
+
+# code for the baseline model class _Seq2Seq()
+run Code/Models/Attention_seq2seq.py
 
 """### **Pretrained embeddings**
 
@@ -199,33 +210,35 @@ def extract_weight(text_dictionary):
 ##### *Download and open data*
 """
 
-# Commented out IPython magic to ensure Python compatibility.
-# %%time
-# !wget https://public.boxcloud.com/d/1/b1!IasNSF3ztSNJdWJRV3LSpFmVfMnM72cL7uMIWuqbuP8sLKlzFh-DWJtmsCo88GpAoGuaBEGmyyIi8XySuUR7002zIS4zLw1wUAay3fx9EEl2-LXGRY3tQm985E_7Kh__z2JpcSIfD2d1aqRybp4vRPafJ1Vd0F2r3HQ_rbqux9zwKvL1w3qAOLP9HIPjeAl_hht51e9GN66KVR8Gt3PkrMGUKwD5yoDzK-mjFt57a5150dKN8dqTQw_vvHPubi-KtZR6ABgcvwwIZFlGID6tz8hPq5_T95zDw5lvkueftrRqpQjJDCP0c1KL3aIiIaR4D6CWbvabwwl5y_h0G755RguIsj4GC9UJrJq6vb25A-qSzwocdi0b-ZOED4aUF6AKaBWCuBHcH2quJur-2hlpE78K1RwzC-SdBkt44Bw-lF0FqsZb9NEckw86qWE_06hZ761v8CS5QbTNwIUswaupK5ATTRT95Cghk9JoVMqtVTLNBApsf88o8C4DJvIeWsst3I1E8R62djoHr7KAandKNPDH627mYGKoYWahSvbm2WolnDEFJGR03QZ1YmbVG8n3ZCIOP99boNztepY3tsXfmE6QKBX186QegeRrcSA4kvxTMWPyR0klbAhw_iFlx1fKuaeON0sxPAzAUqKNKamaMHer1235wshTbSLtdM6TMRQqEd_DWnBJFEyOE2PFvBbQKYhV_1EJksixuXqROEGVHG7bP-S5YNhHL7pPDn6f1miAcSJvI-9APK6Lfsy0EHAZp1FQ7Adn0gzosJbVH7kx4CUKOM5XtGKkFmWgBYPRPgtlQhtgXyO2Y1OBMpCvaBkxeOt4I1zAgdYjekSaE6SqftVgIdOuM5oxFORpnPhbMsy65HLPynHVU4ijFUzUD6EaiGVuYSvlPuG2Yd7YiQNXlDUlwXM_lIMLWBt77IWB-68ENNJBYUciSqlnoeHj2n4UExLdam8Nf2RebqJumCyA_PfftOS8LizcnLnyo7Ek1wU01zkAZyKnXO-4S4ykVf_3Im8-kVCIsHJhLvDypnl4biJSL3iaIRfJGymyG67tx7NNOtAdCHZ4517J69efhA5z4HbQFMQSPvaQKNDWAJWOJ8IXxNED_EDSA2N7OQTkCDIGz9G6EYyw_1aGfgqqzI1Erofcc9q0Lwn39lWwrkappvykP6RJzWnHDnu6N_lTdCMgdGNrFQrMUtwWpZ0mCLsKToUGcSgfrvPxrMuz6lLZyySgXlrN6hWZIR23hElwCSKAZsJcXg../download
-# 
-# data = pd.read_csv('download',
-#                    error_bad_lines = False).astype(str)
-# print(data.shape)
+data = pd.read_csv('../data/wikihowSep.csv',
+                   error_bad_lines = False).astype(str)
+print(data.shape)
 
 """##### *Clean flawed examples*
 
 <hr>
 
-- drop examples where text is shorter than headline
+- drop examples based on the threshold
 """
+
+threshold = 0.75
 
 text_len = [len(str(t)) for t in data.text]
 head_len = [len(str(h)) for h in data.headline]
 
-diff = [t - h for t, h in zip(text_len, head_len)]
+ratio = [h/t for t, h in zip(text_len, head_len)]
 
-problems = [problem for problem, d in enumerate(diff) if (d < 0) & (problem in data.index)]
+problems = [problem for problem, r in enumerate(ratio) if (r > threshold) & (problem in data.index)]
 
 data = data.drop(index = problems)
 
+del text_len, head_len, ratio, problems
 print(data.shape)
 
 """##### *Pre-process data*"""
+
+# Commented out IPython magic to ensure Python compatibility.
+# %time
 
 for item in ['text', 'headline']:
   exec("""{}_data = text_preprocessing(data=data, item = '{}', contraction_map=CONTRACTION_MAP,
@@ -250,6 +263,8 @@ text_train, headline_train = text_data[split <= 0.8], headline_data[split <= 0.8
 text_val, headline_val = text_data[(split > 0.8) & (split <= 0.9)], headline_data[(split > 0.8) & (split <= 0.9)]
 # Test set
 text_test, headline_test = text_data[split > 0.9], headline_data[split > 0.9]
+
+del data
 
 """##### *Sort dataset from the longest sequence to the shortest one*"""
 
@@ -309,18 +324,34 @@ for article in text_train:
 for article in headline_train:
   text_dictionary.add_article(article)
 
-### ---- TO BE ADDED ---- ####
+print("There are {:.0f} distinct words in the untrimmed dictionary".format(len(text_dictionary.word2index.keys())))
 
-# Trim a dictionary to 50k & 150k most frequently used words
-print(len(text_dictionary.word2index.keys()))
+# Trim a dictionary to the words with at least 10 occurences within the text
+min_count = 10
+subset_words = [word for (word, count) in text_dictionary.word2count.items() if count >= min_count]
+text_dictionary.word2index = {word: i for (word, i) in zip(subset_words, range(len(subset_words)))}
+text_dictionary.index2word = {i: word for (word, i) in zip(subset_words, range(len(subset_words)))}
+text_dictionary.word2count = {word: count for (word, count) in text_dictionary.word2count.items() if count >= min_count}
+
+print("There are {:.0f} distinct words in the trimmed dictionary, where only word with at least {:.0f} occurences are retained".format(len(text_dictionary.word2index.keys()), min_count))
+del min_count, subset_words
 
 """##### *Extract embedding vectors for words we need*"""
 
+# Commented out IPython magic to ensure Python compatibility.
+# %%time
+# pre_train_weight = extract_weight(text_dictionary)
 
+"""### **Transform the data**"""
 
-"""# **3 Training**
+# Commented out IPython magic to ensure Python compatibility.
+def ahoj(x):
+#   %%time
+  print(x)
 
-<hr>
- 
--
-"""
+import time
+
+a = time.time()
+time.sleep(2)
+b = time.time()
+print(b-a)
