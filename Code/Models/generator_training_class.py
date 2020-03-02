@@ -95,15 +95,72 @@ class generator:
             type: numpy.array
             description:
         """
-        self.X_train, self.y_train = X_train, y_train
-        self.X_val, self.y_val = X_val, y_val
+        ### generate batches
+        # training data
+        (input_train, input_train_lengths,
+         target_train, target_train_lengths) = self._generate_batches(X_train, y_train)
+        # validation data
+        (input_val, input_val_lengths,
+         target_val, target_val_lengths) = self._generate_batches(X_val, y_val)
         
         best_val_loss = float('inf')
     
     @staticmethod
-    def _generate_batches(self):
+    def _generate_batches(self, input, target):
         """
+        :param input:
+            type:
+            description:
+        :param target:
+            type:
+            description
+            
+        :return input_batches:
+            type:
+            description:
+        :return input_lengths:
+            type:
+            description:
+        :return target_batches:
+            type:
+            description:
+        :return target_lengths:
+            type:
+            description:
         """
+        %%time
+        # determine a number of batches
+        n_batches = input.shape[0] // self.batch_size
+        
+        
+        # transform data to the padded array
+            # inputs are represented in embedded matrices
+            # targets are represented by sequence of corresponding indices
+        (padded_input, 
+         input_lengths,
+         padded_target,
+         target_lengths) = self._data2Paddedarray(input, target)
+        
+        # Generate input and target batches
+            #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
+        input_batches = np.array(
+            np.split(padded_input[:, (n_batches * self.batch_size):, :], n_batches, axis = 1)
+            )
+        target_batches = np.array(
+            np.split(padded_target[:, (n_batches * self.batch_size):], n_batches, axis = 1)
+            )
+        # Split input and target lenghts into batches as well
+        input_lenghts = np.array(
+            np.split(input_lengths[(n_batches * self.batch_size):], n_batches, axis = 0)
+            )
+        target_lenghts = np.array(
+            np.split(target_lengths[(n_batches * self.batch_size):], n_batches, axis = 0)
+            )
+        
+        return (input_batches, input_lengths,
+                target_batches, target_lenghts)
+        
+        
     @staticmethod    
     def _data2PaddedArray(self, input, target):
         """
@@ -127,8 +184,6 @@ class generator:
             type: numpy.array
             description
         """
-        # measure time of padding
-        %%time
         # Create a vector of integers representing our text
         numericalVec_input = np.array(
             [[self.text_dictionary.word2index[word] for word in sentence] for sentence in input]
@@ -165,6 +220,10 @@ class generator:
                 sentence = np.array(sentence, np.zeros((max_lengths - len(sentence),)))
             paddet_target, target_seq_lengths = sentence, sentence.shape[0]
         
-        return np.array(embedded_matrix), np.array(seq_lengths), np.array(padded_target), np.array(target_seq_lengths)
+        return (np.array(embedded_matrix).float().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
+                np.array(seq_lengths),
+                np.array(padded_target).long().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
+                np.array(target_seq_lengths)
+                )
                 
             
