@@ -103,7 +103,146 @@ class generator:
         (input_val, input_val_lengths,
          target_val, target_val_lengths) = self._generate_batches(X_val, y_val)
         
-        best_val_loss = float('inf')
+        # Initialize empty lists for training and validation loss + put best_val_loss = +infinity
+        self.train_losses, self.val_losses = [], []
+        self.best_val_loss = float('inf')
+        # run the training
+        self.model.train()
+        for epoch in range(self.grid['max_epochs']):
+            epoch_loss = 0
+            
+            for input, target, seq_length_input, seq_length_target in zip(input_train,
+                                                                          target_train,
+                                                                          input_train_lengths,
+                                                                          target_train_lengths
+                                                                          ):
+                # zero gradient
+                self.optimiser.zero_grad()
+                ## FORWARD PASS
+                # Prepare RNN-edible input - i.e. pack padded sequence
+                input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
+                                                          lengths = seq_length_input,
+                                                          batch_first = False,
+                                                          enforce_sorted = False).to(device)
+                output = self.model(seq2seq_input = input, target = target,
+                                    teacher_forcing_ratio = self.teacher_forcing_ratio
+                                    )
+                del input
+                # Pack output and target padded sequence
+                ## Determine a length of output sequence based on the first occurrence of <eos>
+                seq_length_output = np.array(
+                    [out == self.text_dictionary.word2index['<eos>'] for out in output.transpose()]
+                    ).argmax(1)
+                seq_length_output = np.array(
+                    [seq_length_output.shape[0] if seq_len == 0 else seq_len for seq_len in seq_length_input]
+                    )
+                # determine seq_length for computation of loss function based on max(seq_lenth_target, seq_length_output)
+                seq_length_loss = np.array(
+                    (seq_length_output, seq_length_target)
+                    ).max(0)
+                
+                output = nn.utils.rnn.pack_padded_sequence(output,
+                                                           lengths = seq_length_loss,
+                                                           batch_first = False,
+                                                           enforce_sorted = False).to(device)
+                
+                target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
+                                                           lengths = seq_length_loss,
+                                                           batch_first = False,
+                                                           enforce_sorted = False).to(device)
+                
+                # Compute loss
+                loss = self.loss_function(output[0], target[0])
+                del output, target
+                
+                ### BACKWARD PASS
+                # Make update step w.r.t. clipping gradient
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grid['clip'])
+                self.optimiser.step()
+                
+                self.epoch_loss += loss.item()
+           
+            # Save training loss and validation loss
+            self.train_losses.append(epoch_loss)
+            self.val_losses.append(
+                self._evaluate(input_val, input_val_lengths,
+                               target_val, target_val_lengths)
+                )
+            
+            # Store the best model if validation loss improved
+            if self.val_losses[epoch] < self.best_val_loss:
+                self.best_val_loss = self.val_losses[epoch]
+                self.m = copy.deepcopy(self.model)
+            
+            # Print the progress
+            print(f'Epoch: {epoch+1}:')
+            print(f'Train Loss: {self.train_losses[epoch]:.3f}')
+            print(f'Validation Loss: {self.val_losses[epoch]:.3f}')
+            
+                
+
+    def _evaluate(self, input_val, input_val_lengths, target_val, target_val_lengths):
+        """
+        :param input_val:
+            type:
+            description:
+        :param input_val_lengths:
+            type:
+            description:
+        :param target_val:
+            type:
+            description:
+        :param target_val_lengths:
+            type:
+            description:
+                
+        :return val_loss:
+            type:
+            description:
+        """
+        self.model.eval()
+        val_loss = 0
+        for input, target, seq_length_input, seq_length_target in zip(input_val,
+                                                                      target_val,
+                                                                      input_val_lengths,
+                                                                      target_val_lengths
+                                                                      ):
+            input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float()),
+                                                      lengths = seq_length_input,
+                                                      batch_first = False,
+                                                      enforce_sorted = False).to(device)
+            output = self.model(seq2seq_input = input, target = target,
+                                teacher_forcing_ratio = self.teacher_forcing_ratio
+                                )
+            del input
+            # Pack output and target padded sequence
+            ## Determine a length of output sequence based on the first occurrence of <eos>
+            seq_length_output = np.array(
+                [out == self.text_dictionary.word2index['<eos>'] for out in output.transpose()]
+                ).argmax(1)
+            seq_length_output = np.array(
+                [seq_length_output.shape[0] if seq_len == 0 else seq_len for seq_len in seq_length_input]
+                )
+            # determine seq_length for computation of loss function based on max(seq_lenth_target, seq_length_output)
+            seq_length_loss = np.array(
+                (seq_length_output, seq_length_target)
+                ).max(0)
+            
+            output = nn.utils.rnn.pack_padded_sequence(output,
+                                                       lengths = seq_length_loss,
+                                                       batch_first = False,
+                                                       enforce_sorted = False).to(device)
+            
+            target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long()),
+                                                       lengths = seq_length_loss,
+                                                       batch_first = False,
+                                                       enforce_sorted = False).to(device)
+            
+            # Compute loss
+            val_loss += self.loss_function(output[0], target[0]).item()
+        
+        return val_loss
     
     @staticmethod
     def _generate_batches(self, input, target):
@@ -143,6 +282,7 @@ class generator:
         
         # Generate input and target batches
             #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
+                #seq_length is variable throughout the batches
         input_batches = np.array(
             np.split(padded_input[:, (n_batches * self.batch_size):, :], n_batches, axis = 1)
             )
@@ -157,6 +297,12 @@ class generator:
             np.split(target_lengths[(n_batches * self.batch_size):], n_batches, axis = 0)
             )
         
+        # trim sequences in individual batches
+        for batch in n_batches:
+            input_batches[batch] = input_batches[batch, input_lenghts[batch].max(), :, :]
+            target_batches[batch] = target_batches[batch, target_lenghts[batch].max(), :, :]
+        
+        # return prepared data
         return (input_batches, input_lengths,
                 target_batches, target_lenghts)
         
@@ -225,5 +371,21 @@ class generator:
                 np.array(padded_target).long().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
                 np.array(target_seq_lengths)
                 )
+    
+    def _push_to_repo(self,):
+        
+        """
+        """
+        !git remote rm origin
+        !git remote add origin https://gansforlife:dankodorkamichaelzak@github.com/stancld/GeneratingHeadlines_GANs.git
+        !git checkout master
+        !git pull origin master
+        !git branch models_branch
+        !git checkout models_branch
+        !git add .
+        !git commit -m "model state update"
+        !git checkout master
+        !git merge models_branch
+        !git push -u origin master
                 
             
