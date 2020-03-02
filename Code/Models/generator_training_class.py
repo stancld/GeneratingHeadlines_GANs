@@ -208,7 +208,7 @@ class generator:
                                                                       input_val_lengths,
                                                                       target_val_lengths
                                                                       ):
-            input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float()),
+            input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
                                                       lengths = seq_length_input,
                                                       batch_first = False,
                                                       enforce_sorted = False).to(device)
@@ -234,7 +234,7 @@ class generator:
                                                        batch_first = False,
                                                        enforce_sorted = False).to(device)
             
-            target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long()),
+            target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
                                                        lengths = seq_length_loss,
                                                        batch_first = False,
                                                        enforce_sorted = False).to(device)
@@ -373,7 +373,6 @@ class generator:
                 )
     
     def _push_to_repo(self,):
-        
         """
         """
         !git remote rm origin
