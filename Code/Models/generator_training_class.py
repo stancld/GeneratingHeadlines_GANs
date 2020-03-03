@@ -338,7 +338,7 @@ class generator:
         numericalVec_target = np.array(
             [[self.__word2index__(word) for word in sentence] for sentence in target]
             )
-        self.a = numericalVec_input
+        
         ### Convert the input data to embedded representation
         max_lengths = np.array([len(sentence) for sentence in input]).max()
         embedded_matrix, input_seq_lengths = [], []
@@ -349,7 +349,7 @@ class generator:
                 )
             # append sequence length
             input_seq_lengths.append(
-                sentence.shape[0]
+                len(sentence)
                 )
             # padding
             if sentence.shape[0] < max_lentghts:
@@ -365,7 +365,7 @@ class generator:
                 sentence = np._r[np.array(sentence)]
             else:
                 sentence = np.array(sentence, np.zeros((max_lengths - len(sentence),)))
-            paddet_target, target_seq_lengths = sentence, sentence.shape[0]
+            paddet_target, target_seq_lengths = sentence, len(sentence)
         
         return (np.array(embedded_matrix).float().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
                 np.array(seq_lengths),
