@@ -24,6 +24,7 @@ import torch.optim as optim
 
 exec(open('Code/Models/Attention_seq2seq.py').read())
 text_dictionary = {}
+pre_train_weight = []
 # ----- Settings -----
 
 class generator:
