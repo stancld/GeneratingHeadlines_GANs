@@ -23,15 +23,14 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 exec(open('Code/Models/Attention_seq2seq.py').read())
-text_dictionary = {}
 pre_train_weight = []
 # ----- Settings -----
 
 class generator:
     """
     """
-    def __init__(self, model = _Seq2Seq, loss_function = nn.NLLLoss,
-                 optimiser = optim.Adam, batch_size = 128, 
+    def __init__(self, model, loss_function,
+                 optimiser, batch_size, 
                  text_dictionary, embeddings, 
                  **kwargs):
         """
