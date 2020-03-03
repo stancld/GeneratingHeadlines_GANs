@@ -14,13 +14,17 @@ Collaborators:
     - Zakhar Borok`
 """
 
+# ----- Settings -----
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
 exec(open('Code/Models/Attention_seq2seq.py').read())
+text_dictionary = {}
+# ----- Settings -----
 
 class generator:
     """
