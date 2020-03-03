@@ -334,10 +334,10 @@ class generator:
         """
         # Create a vector of integers representing our text
         numericalVec_input = np.array(
-            [[self.text_dictionary.word2index[word] for word in sentence] for sentence in input]
+            [[self.__word2index__(word) for word in sentence] for sentence in input]
             )
         numericalVec_target = np.array(
-            [[self.text_dictionary.word2index[word] for word in sentence] for sentence in target]
+            [[self.__word2index__(word) for word in sentence] for sentence in target]
             )
         
         ### Convert the input data to embedded representation
@@ -346,7 +346,7 @@ class generator:
         for sentence in numericalVec_input:
             # embedding
             embedded_sentence = np.array(
-                [self.embeddings[self.text_dictionary.word2index[word]] for word in sentence]
+                [self.embeddings[self.__word2index__(word)] for word in sentence]
                 )
             # append sequence length
             input_seq_lengths.append(
@@ -373,3 +373,25 @@ class generator:
                 np.array(padded_target).long().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
                 np.array(target_seq_lengths)
                 )
+    @helper
+    def __word2index__(self, word):
+        """
+        :param word:
+            type:
+            description:
+        """
+        try:
+            return self.text_dictionary.word2index[word]
+        except:
+            return 
+
+        Parameters
+        ----------
+         : TYPE
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
