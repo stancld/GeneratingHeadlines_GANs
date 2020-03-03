@@ -383,15 +383,4 @@ class generator:
         try:
             return self.text_dictionary.word2index[word]
         except:
-            return 
-
-        Parameters
-        ----------
-         : TYPE
-            DESCRIPTION.
-
-        Returns
-        -------
-        None.
-
-        """
+            return self.embeddings.shape[1] - 1
