@@ -267,7 +267,6 @@ class generator:
             type:
             description:
         """
-        %%time
         # determine a number of batches
         n_batches = input.shape[0] // self.batch_size
         
