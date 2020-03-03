@@ -370,20 +370,3 @@ class generator:
                 np.array(padded_target).long().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
                 np.array(target_seq_lengths)
                 )
-    
-    def _push_to_repo(self,):
-        """
-        """
-        !git remote rm origin
-        !git remote add origin https://gansforlife:dankodorkamichaelzak@github.com/stancld/GeneratingHeadlines_GANs.git
-        !git checkout master
-        !git pull origin master
-        !git branch models_branch
-        !git checkout models_branch
-        !git add .
-        !git commit -m "model state update"
-        !git checkout master
-        !git merge models_branch
-        !git push -u origin master
-                
-            
