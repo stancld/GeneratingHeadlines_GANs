@@ -250,7 +250,6 @@ class generator:
         
         return val_loss
     
-    @staticmethod
     def _generate_batches(self, input, target):
         """
         :param input:
