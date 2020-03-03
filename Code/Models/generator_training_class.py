@@ -32,7 +32,7 @@ class generator:
     """
     def __init__(self, model = _Seq2Seq, loss_function = nn.NLLLoss,
                  optimiser = optim.Adam, batch_size = 128, 
-                 text_dictionary = text_dictionary, embeddings = pre_train_weight, 
+                 text_dictionary, embeddings, 
                  **kwargs):
         """
         :param model:
@@ -103,10 +103,12 @@ class generator:
         ### generate batches
         # training data
         (input_train, input_train_lengths,
-         target_train, target_train_lengths) = self._generate_batches(X_train, y_train)
+         target_train, target_train_lengths) = self._generate_batches(input = X_train,
+                                                                      target = y_train)
         # validation data
         (input_val, input_val_lengths,
-         target_val, target_val_lengths) = self._generate_batches(X_val, y_val)
+         target_val, target_val_lengths) = self._generate_batches(input = X_val,
+                                                                  target = y_val)
         
         # Initialize empty lists for training and validation loss + put best_val_loss = +infinity
         self.train_losses, self.val_losses = [], []
