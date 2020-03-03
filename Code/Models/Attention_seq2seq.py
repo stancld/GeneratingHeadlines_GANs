@@ -25,34 +25,39 @@ import torch.optim as optim
 def show_parameter():
 
     print(
-        ''' Hello:
+        ''' 
+    This is a seq2seq model, embedding should be done before input into this model
+    
+    RNN used is GRU
+    
+    default loss function is MSELoss()
 
-    run function: instan_things to instantiate your model, 
+    run function: instan_things,
+         to instantiate your model, 
             in which you should define the following dictionary parameters
-
-    param = {'max_epochs':3,
+    e.g.
+    param = {'max_epochs':64,
             'learning_rate':1e-3,       
             'clip':1,                  # clip grad norm
             'teacher_forcing_ratio':1, # during training
-            'OUTPUT_DIM':1,
-            'ENC_EMB_DIM':21,
-            'ENC_HID_DIM':32,
-            'DEC_HID_DIM':32,
+            'OUTPUT_DIM':1,            # intented output dimension
+            'ENC_EMB_DIM':21,          # embedding space of your input
+            'ENC_HID_DIM':32,          
+            'DEC_HID_DIM':32,          # hidden dimension should be the same
             'ENC_DROPOUT':0,
             'DEC_DROPOUT':0,
             'device':device}
       
-    run function: seq2seq_running to train your model,
-            in which you should pass:
-    grid, model, optimiser, lossfunction, X_train, y_train, X_test, y_test, teacher_forcing_ratio
+    Training:
+    seq2seq_running(grid, model, optimiser, lossfunction, X_train, y_train, X_test, y_test, teacher_forcing_ratio)
     
-    run function: seq2seq_evaluate to evaluate, 
-            in which you should pass:
-    model, X_test, y_test, lossfunction
+    Evaluation:
+    seq2seq_evaluate(model, X_test, y_test, lossfunction)
     
-    to predict you do:
+    Prediction:
     model(self, seq2seq_input, target, teacher_forcing_ratio = 0)
-
+    
+    in which:
     seq2seq_input = [seq_len, batch size,Enc_emb_dim]
     target = [trg_len, batch size,output_dim], trg_len is prediction len
     
@@ -100,9 +105,8 @@ class _Encoder(nn.Module):
         """
         # enc_input = [enc_input_len, batch size,emb_dim]
 
-        embedded = self.dropout(enc_input)
-
-        # embedded = [enc_input_len, batch size, emb_dim]
+  
+        embedded = self.dropout(enc_input)  # embedded = [enc_input_len, batch size, emb_dim]
 
         outputs, hidden = self.rnn(embedded)
 
@@ -122,7 +126,7 @@ class _Encoder(nn.Module):
 
         # outputs = [src len, batch size, enc hid dim * 2]
         # hidden = [batch size, dec hid dim]
-        return outputs, hidden        
+        return outputs, hidden     
         
 ### Attention
 class _Attention(nn.Module):
@@ -157,27 +161,23 @@ class _Attention(nn.Module):
         """
 
         # hidden = [batch size, dec hid dim]
-        # encoder_outputs = [src len, batch size, enc hid dim * 2]
+        # encoder_outputs = [enc_seq_len, batch size, enc hid dim * 2]
 
         batch_size = encoder_outputs.shape[1]
-        src_len = encoder_outputs.shape[0]
+        enc_seq_len = encoder_outputs.shape[0]
 
-        # repeat decoder hidden state src_len times
-        hidden = hidden.unsqueeze(1).repeat(1, src_len, 1)
+        # repeat decoder hidden state enc_seq_len times
+        hidden = hidden.unsqueeze(1).repeat(1, enc_seq_len, 1)
 
         encoder_outputs = encoder_outputs.permute(1, 0, 2)
 
-        # hidden = [batch size, src len, dec hid dim]
-        # encoder_outputs = [batch size, src len, enc hid dim * 2]
+        # hidden = [batch size, enc_seq_len, dec hid dim]
+        # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
 
         energy = torch.tanh(
-            self.attn(torch.cat((hidden, encoder_outputs), dim=2)))
+            self.attn(torch.cat((hidden, encoder_outputs), dim=2))) # energy = [batch size, enc_seq_len, dec hid dim]
 
-        # energy = [batch size, src len, dec hid dim]
-
-        attention = self.v(energy).squeeze(2)
-
-        # attention= [batch size, src len]
+        attention = self.v(energy).squeeze(2)   # attention= [batch size, enc_seq_len]
 
         return F.softmax(attention, dim=1)
     
@@ -238,35 +238,22 @@ class _Decoder(nn.Module):
 
         # dec_input = [1,batch size,dec_emb dim]
         # hidden = [batch size, dec hid dim]
-        # encoder_outputs = [src len, batch size, enc hid dim * 2]
+        # encoder_outputs = [enc_seq_len, batch size, enc hid dim * 2]
 
-        embedded = self.dropout(dec_input)
+        embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
 
-        # embedded = [1, batch size, dec_emb dim]
+        attention = self.attention(hidden, encoder_outputs) # attention = [batch size, enc_seq_len]
 
-        a = self.attention(hidden, encoder_outputs)
+        attention = attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
 
-        # a = [batch size, src len]
+        encoder_outputs = encoder_outputs.permute(1, 0, 2)  # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
 
-        a = a.unsqueeze(1)
+        weighted = torch.bmm(attention, encoder_outputs)    # weighted = [batch size, 1, enc hid dim * 2]
 
-        # a = [batch size, 1, src len]
-
-        encoder_outputs = encoder_outputs.permute(1, 0, 2)
-
-        # encoder_outputs = [batch size, src len, enc hid dim * 2]
-
-        weighted = torch.bmm(a, encoder_outputs)
-
-        # weighted = [batch size, 1, enc hid dim * 2]
-
-        weighted = weighted.permute(1, 0, 2)
-        # weighted = [1, batch size, enc hid dim * 2]
+        weighted = weighted.permute(1, 0, 2) # weighted = [1, batch size, enc hid dim * 2]
 
         # print('embedded',embedded.size())
-        rnn_input = torch.cat((embedded, weighted), dim=2)
-
-        # rnn_input = [1, batch size, (enc hid dim * 2) + dec_emb dim]
+        rnn_input = torch.cat((embedded, weighted), dim=2)  # rnn_input = [1, batch size, (enc hid dim * 2) + dec_emb dim]
 
         output, hidden = self.rnn(rnn_input, hidden.unsqueeze(0))
 
