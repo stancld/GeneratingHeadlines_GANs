@@ -282,7 +282,7 @@ class generator:
         (padded_input, 
          input_lengths,
          padded_target,
-         target_lengths) = self._data2Paddedarray(input, target)
+         target_lengths) = self._data2PaddedArray(input, target)
         
         # Generate input and target batches
             #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
@@ -309,9 +309,7 @@ class generator:
         # return prepared data
         return (input_batches, input_lengths,
                 target_batches, target_lenghts)
-        
-        
-    @staticmethod    
+               
     def _data2PaddedArray(self, input, target):
         """
         :param input:
