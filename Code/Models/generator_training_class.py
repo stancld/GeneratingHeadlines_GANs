@@ -20,6 +20,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+run Attention_seq2seq.py
+
 
 
 class generator:
