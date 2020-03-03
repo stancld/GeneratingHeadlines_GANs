@@ -352,7 +352,7 @@ class generator:
                 len(sentence)
                 )
             # padding
-            if len(sentence) < max_lentghts:
+            if len(sentence) < max_lengths:
                 embedded_sentence = np.r_[embedded_sentence, np.zeros((max_lengths - embedded_sentence.shape[0], self.embeddings.shape[1]))]
             # append embedded sentence
             embedded_matrix.append(embedded_sentence)
@@ -361,7 +361,7 @@ class generator:
         max_lengths = np.array([len(sentence) for sentence in target]).max()
         padded_target, target_seq_lengths = [], []
         for sentence in numericalVec_target:
-            if len(sentence) < max_lentghts:
+            if len(sentence) < max_lengths:
                 sentence = np._r[np.array(sentence)]
             else:
                 sentence = np.array(sentence, np.zeros((max_lengths - len(sentence),)))
