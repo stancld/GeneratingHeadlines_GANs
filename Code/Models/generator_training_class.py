@@ -25,7 +25,7 @@ exec(open('Code/Models/Attention_seq2seq.py').read())
 class generator:
     """
     """
-    def __init__(self, model = _Seq2Seq, loss_function = nn.NLL,
+    def __init__(self, model = _Seq2Seq, loss_function = nn.NLLLoss,
                  optimiser = optim.Adam, batch_size = 128, 
                  text_dictionary = text_dictionary, embeddings = pre_train_weight, 
                  **kwargs):
