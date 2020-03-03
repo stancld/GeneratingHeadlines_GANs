@@ -2,7 +2,7 @@ import sys
 
 terms = {}
 
-THRESHOLD_TF = 1
+THRESHOLD_TF = 10
 
 
 def update(tokens):
