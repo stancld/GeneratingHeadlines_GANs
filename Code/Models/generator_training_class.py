@@ -20,7 +20,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-exec(open('Attention_seq2seq.py').read())
+exec(open('Code/Models/Attention_seq2seq.py').read())
 
 class generator:
     """
