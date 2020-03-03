@@ -373,7 +373,7 @@ class generator:
                 np.array(padded_target).long().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
                 np.array(target_seq_lengths)
                 )
-    @helper
+    
     def __word2index__(self, word):
         """
         :param word:
@@ -381,6 +381,7 @@ class generator:
             description:
         """
         try:
-            return self.text_dictionary.word2index[word]
+            word2index = self.text_dictionary.word2index[word]
         except:
-            return self.embeddings.shape[1] - 1
+            word2index = self.embeddings.shape[1] - 1
+        return word2index
