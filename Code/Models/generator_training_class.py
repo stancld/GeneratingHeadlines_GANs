@@ -104,6 +104,7 @@ class generator:
         (input_train, input_train_lengths,
          target_train, target_train_lengths) = self._generate_batches(input = X_train,
                                                                       target = y_train)
+        return (input_train, input_train_lengths, target_train, target_train_lengths)
         # validation data
         (input_val, input_val_lengths,
          target_val, target_val_lengths) = self._generate_batches(input = X_val,
