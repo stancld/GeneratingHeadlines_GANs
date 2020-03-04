@@ -241,6 +241,7 @@ class _Decoder(nn.Module):
         # hidden = [batch size, dec hid dim]
         # encoder_outputs = [enc_seq_len, batch size, enc hid dim * 2]
 
+        embedded = dec_input    
         #embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
 
         attention = self.attention(hidden, encoder_outputs) # attention = [batch size, enc_seq_len]
