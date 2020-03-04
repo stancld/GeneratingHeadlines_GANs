@@ -15,6 +15,7 @@ Collaborators:
 """
 
 # ----- Settings -----
+import time
 import numpy as np
 import pandas as pd
 import torch
@@ -113,6 +114,9 @@ class generator:
         self.best_val_loss = float('inf')
         # run the training
         self.model.train()
+        return (input_train, input_train_lengths,
+         target_train, target_train_lengths)
+    
         for epoch in range(self.grid['max_epochs']):
             epoch_loss = 0
             
@@ -356,6 +360,7 @@ class generator:
                 embedded_sentence = np.r_[embedded_sentence, np.zeros((max_lengths - embedded_sentence.shape[0], self.embeddings.shape[1]))]
             # append embedded sentence
             embedded_matrix.append(embedded_sentence)
+        del numericalVec_input
         
         ### Pad the target data
         max_lengths = np.array([len(sentence) for sentence in target]).max()
@@ -366,6 +371,7 @@ class generator:
             else:
                 sentence = np.array(sentence, np.zeros((max_lengths - len(sentence),)))
             paddet_target, target_seq_lengths = sentence, len(sentence)
+        del numericalVec_target
         
         return (np.array(embedded_matrix).float().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
                 np.array(seq_lengths),
