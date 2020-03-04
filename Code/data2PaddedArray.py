@@ -14,7 +14,7 @@ Collaborators:
     - Zakhar Borok`
 """
 
-def data2PaddedArray(input, target, embeddings):
+def data2PaddedArray(input, target, text_dictionary, embeddings):
     """
     :param input:
         type:
@@ -36,6 +36,29 @@ def data2PaddedArray(input, target, embeddings):
         type: numpy.array
         description
     """
+    # HELPER function
+    def __word2index__(word, text_dictionary = text_dictionary, embeddings = embeddings):
+      """
+      :param word:
+          type:
+          description:
+      :param text_dictionary:
+          type:
+          description:
+      :param embeddings:
+          type:
+          description:
+              
+      :return word2index:
+          type:
+          description:  
+      """
+      try:
+        word2index = text_dictionary.word2index[word]
+      except:
+        word2index = embeddings.shape[1] - 1
+      return word2index
+    
     # Create a vector of integers representing our text
     numericalVec_input = np.array(
         [[__word2index__(word) for word in sentence] for sentence in input]
@@ -82,24 +105,3 @@ def data2PaddedArray(input, target, embeddings):
             np.array(target_seq_lengths, np.int)
             )
 
-def __word2index__(word, text_dictionary, embeddings):
-  """
-  :param word:
-      type:
-      description:
-  :param text_dictionary:
-      type:
-      description:
-  :param embeddings:
-      type:
-      description:
-          
-  :return word2index:
-      type:
-      description:  
-  """
-  try:
-    word2index = text_dictionary.word2index[word]
-  except:
-    word2index = embeddings.shape[1] - 1
-  return word2index
