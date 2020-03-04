@@ -2,8 +2,6 @@ import sys
 
 terms = {}
 
-THRESHOLD_TF = 10
-
 
 def update(tokens):
     for token in tokens:
@@ -18,11 +16,10 @@ for line in sys.stdin:
     update(line.split())
 
 # save and pass terms
-f = open(str(THRESHOLD_TF) + 'tf_terms.txt', 'w')
+f = open('tf.txt', 'w')
 
 for term in list(terms):
-    if terms[term] >= THRESHOLD_TF:
-        print(term)
-        f.write(term + '\n')
+    print(term)
+    f.write(term + '\n')
 
 f.close()

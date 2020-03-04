@@ -9,12 +9,16 @@ from gensim.models import keyedvectors, Word2Vec
 # initialise vars
 path_to_original_vectors = '../../../../../../../../../../../Documents/Computing/DataSets/NLP/model_parts/Word2Vec/GoogleNews-vectors-negative300.bin'
 dimensionality = 300
+THRESHOLD_TF = 10
+
 
 # get allowed words
 allowed_words = set()
 
 for line in sys.stdin:
-    allowed_words.add(line.rstrip())
+    line = line.rstrip().split()
+    if int(line[1]) > THRESHOLD_TF:
+        allowed_words.add(line[0])
 
 # load vectors
 google_w2v = keyedvectors.KeyedVectors.load_word2vec_format(path_to_original_vectors,
@@ -27,7 +31,8 @@ new_w2v = Word2Vec([list(allowed_words)], min_count=1, size=dimensionality)
 for word in allowed_words:
     if word in google_w2v.wv.vocab:
         new_w2v.wv.vectors[new_w2v.wv.vocab[word].index] = google_w2v[word]
-    elif word.capitalize() in google_w2v.wv.vocab:
+
+    if word.capitalize() in google_w2v.wv.vocab:
         new_w2v.wv.vectors[new_w2v.wv.vocab[word.capitalize()].index] = google_w2v[word.capitalize()]
 
 # recalculate normalised vectors
