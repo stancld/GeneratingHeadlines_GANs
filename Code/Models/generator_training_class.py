@@ -16,6 +16,7 @@ Collaborators:
 
 # ----- Settings -----
 import time
+import gc
 import numpy as np
 import pandas as pd
 import torch

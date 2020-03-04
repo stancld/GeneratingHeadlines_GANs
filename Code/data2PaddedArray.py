@@ -105,8 +105,8 @@ def data2PaddedArray(input, target, text_dictionary, embeddings):
     del numericalVec_target
     
     return (np.array(embedded_matrix).swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
-            input_seq_lengths.reshape(input_seq_lengths.shape[1:]),
+            input_seq_lengths,
             np.array(padded_target, np.int32).swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
-            target_seq_lengths.reshape(target_seq_lengths.shape[1:]),
+            target_seq_lengths,
             )
 
