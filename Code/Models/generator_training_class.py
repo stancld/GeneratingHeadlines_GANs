@@ -162,6 +162,7 @@ class generator:
                 output = self.model(seq2seq_input = input, target = target,
                                     teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
+                return output
                 del input
                 # Pack output and target padded sequence
                 ## Determine a length of output sequence based on the first occurrence of <eos>
