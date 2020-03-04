@@ -365,6 +365,7 @@ class generator:
             # append embedded sentence
             embedded_matrix.append(embedded_sentence)
         del numericalVec_input
+        return embedded_matrix
         
         ### Pad the target data
         max_lengths = np.array([len(sentence) for sentence in target]).max()
