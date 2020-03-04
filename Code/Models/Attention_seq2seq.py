@@ -105,8 +105,9 @@ class _Encoder(nn.Module):
         """
         # enc_input = [enc_input_len, batch size,emb_dim]
 
-  
-        embedded = self.dropout(enc_input)  # embedded = [enc_input_len, batch size, emb_dim]
+        embedded = enc_input
+        embedded[0] = self.dropout(enc_input[0])  # embedded = [enc_input_len, batch size, emb_dim]
+        
 
         outputs, hidden = self.rnn(embedded)
 
@@ -322,7 +323,6 @@ class _Seq2Seq(nn.Module):
         batch_size = seq2seq_input[0].shape[1]
         trg_len = target[0].shape[0]
         trg_vocab_size = self.decoder.output_dim
-        return 'AHooooj'
 
         # tensor to store decoder outputs
         outputs = torch.zeros(trg_len, batch_size,
