@@ -114,16 +114,16 @@ class generator:
         ### generate batches
         # training data
         (input_train, input_train_lengths,
-         target_train, target_train_lengths) = self._generate_batches(input = X_train,
+         target_train, target_train_lengths) = self._generate_batches(padded_input = X_train,
                                                                       input_lengths = X_train_lengths,
-                                                                      target = y_train,
+                                                                      padded_target = y_train,
                                                                       target_lengths = y_train_lengths)
     
         # validation data
         (input_val, input_val_lengths,
-         target_val, target_val_lengths) = self._generate_batches(input = X_val,
+         target_val, target_val_lengths) = self._generate_batches(padded_input = X_val,
                                                                   input_lengths = X_val_lengths,
-                                                                  target = y_val,
+                                                                  padded_target = y_val,
                                                                   target_lengths = y_val_lengths)
         
         # Initialize empty lists for training and validation loss + put best_val_loss = +infinity
@@ -270,7 +270,7 @@ class generator:
         
         return val_loss
     
-    def _generate_batches(self, input, input_lengths, target, target_lengths):
+    def _generate_batches(self, padded_input, input_lengths, padded_target, target_lengths):
         """
         :param input:
             type:
