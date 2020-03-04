@@ -299,7 +299,7 @@ class generator:
             description:
         """
         # determine a number of batches
-        n_batches = input.shape[1] // self.batch_size
+        n_batches = padded_input.shape[1] // self.batch_size
         
         # Generate input and target batches
             #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
