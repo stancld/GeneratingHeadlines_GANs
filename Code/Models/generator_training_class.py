@@ -101,6 +101,9 @@ class generator:
         """
         ### generate batches
         # training data
+        self.X, self. Y = self._data2PaddedArray(X_train, y_train)
+        return Hi
+        
         (input_train, input_train_lengths,
          target_train, target_train_lengths) = self._generate_batches(input = X_train,
                                                                       target = y_train)
