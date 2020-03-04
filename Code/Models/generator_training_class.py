@@ -312,7 +312,7 @@ class generator:
             np.split(padded_target[:, :(n_batches * self.batch_size)], n_batches, axis = 1)
             )
         # Split input and target lenghts into batches as well
-        input_lenghts = np.array(
+        input_lengths = np.array(
             np.split(input_lengths[:(n_batches * self.batch_size)], n_batches, axis = 0)
             )
         target_lenghts = np.array(
