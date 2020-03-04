@@ -166,12 +166,12 @@ class _Attention(nn.Module):
 
         batch_size = encoder_outputs.shape[1]
         enc_seq_len = encoder_outputs.shape[0]
-        print(hidden.shape)
+        
         # repeat decoder hidden state enc_seq_len times
         hidden = hidden.unsqueeze(1).repeat(1, enc_seq_len, 1)
-        print(hidden.shape, encoder_outputs.shape)
+        
         encoder_outputs = encoder_outputs.permute(1, 0, 2)
-
+        print(encoder_outputs.shape)
         # hidden = [batch size, enc_seq_len, dec hid dim]
         # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
 
