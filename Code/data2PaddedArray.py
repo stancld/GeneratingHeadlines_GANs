@@ -13,6 +13,7 @@ Collaborators:
     - Guoliang HE
     - Zakhar Borok`
 """
+import numpy as np
 
 def data2PaddedArray(input, target, text_dictionary, embeddings):
     """
