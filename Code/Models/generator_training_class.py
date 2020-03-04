@@ -130,11 +130,10 @@ class generator:
         # Initialize empty lists for training and validation loss + put best_val_loss = +infinity
         self.train_losses, self.val_losses = [], []
         self.best_val_loss = float('inf')
+        
         # run the training
         self.model.train()
-        return (input_train, input_train_lengths,
-         target_train, target_train_lengths)
-    
+                
         for epoch in range(self.grid['max_epochs']):
             epoch_loss = 0
             
@@ -235,10 +234,14 @@ class generator:
                                                                       input_val_lengths,
                                                                       target_val_lengths
                                                                       ):
+            # trim input, target
+            input = input[seq_length_input:]
+            target = target[seq_length_input:]
+            
             input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
                                                       lengths = seq_length_input,
                                                       batch_first = False,
-                                                      enforce_sorted = False).to(device)
+                                                      enforce_sorted = False).to(self.device)
             output = self.model(seq2seq_input = input, target = target,
                                 teacher_forcing_ratio = self.teacher_forcing_ratio
                                 )
@@ -319,12 +322,12 @@ class generator:
             np.split(target_lengths[:(n_batches * self.batch_size)], n_batches, axis = 0)
             )
         
-        print(input_batches.shape, target_batches.shape, input_lengths.shape, target_lengths.shape)
+        """
         # trim sequences in individual batches
         for batch in range(n_batches):
-            input_batches[batch] = input_batches[batch][input_lengths[batch].max():]
-            target_batches[batch] = target_batches[batch][target_lengths[batch].max():]
-        
+            input_batches[batch] = input_batches[batch, input_lengths[batch].max():, :, :]
+            target_batches[batch] = target_batches[batch, target_lengths[batch].max():, :]
+        """
         # return prepared data
         return (input_batches, input_lengths,
                 target_batches, target_lengths)
