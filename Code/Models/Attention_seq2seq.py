@@ -251,12 +251,11 @@ class _Decoder(nn.Module):
         encoder_outputs = encoder_outputs.permute(1, 0, 2)  # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
         
         weighted = torch.bmm(attention, encoder_outputs)    # weighted = [batch size, 1, enc hid dim * 2]
-
+        return weighted
         weighted = weighted.permute(1, 0, 2) # weighted = [1, batch size, enc hid dim * 2]
-
         # print('embedded',embedded.size())
         rnn_input = torch.cat((embedded, weighted), dim=2)  # rnn_input = [1, batch size, (enc hid dim * 2) + dec_emb dim]
-        return rnn_input
+        
         output, hidden = self.rnn(rnn_input, hidden.unsqueeze(0))
 
         # output = [seq len, batch size, dec hid dim * n directions]
