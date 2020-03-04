@@ -109,7 +109,7 @@ class _Encoder(nn.Module):
         #embedded[0] = self.dropout(enc_input[0])  # embedded = [enc_input_len, batch size, emb_dim]
 
         outputs, hidden = self.rnn(embedded)
-        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs) 
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs) 
 
         # outputs = [enc_input len, batch size, hid dim * num directions]
         # hidden = [n layers * num directions, batch size, hid dim]
