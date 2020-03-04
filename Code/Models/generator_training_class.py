@@ -158,7 +158,6 @@ class generator:
                                                           lengths = seq_length_target,
                                                           batch_first = False,
                                                           enforce_sorted = False).to(self.device)
-                return input, target
                 
                 output = self.model(seq2seq_input = input, target = target,
                                     teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
