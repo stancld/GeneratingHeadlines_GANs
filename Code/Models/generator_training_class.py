@@ -101,9 +101,6 @@ class generator:
         """
         ### generate batches
         # training data
-        self.X, self. Y = self._data2PaddedArray(X_train, y_train)
-        return Hi
-        
         (input_train, input_train_lengths,
          target_train, target_train_lengths) = self._generate_batches(input = X_train,
                                                                       target = y_train)
@@ -316,80 +313,3 @@ class generator:
         # return prepared data
         return (input_batches, input_lengths,
                 target_batches, target_lenghts)
-               
-    def _data2PaddedArray(self, input, target):
-        """
-        :param input:
-            type:
-            description:
-        :param target:
-            type:
-            description
-            
-        :return embedded_matrix:
-            type: numpy.array
-            description:
-        :return input_seq_lengths:
-            type: numpy.array
-            description:
-        :return padded_target:
-            type: numpy.array
-            description:
-        :return target_seq_lengths:
-            type: numpy.array
-            description
-        """
-        # Create a vector of integers representing our text
-        numericalVec_input = np.array(
-            [[self.__word2index__(word) for word in sentence] for sentence in input]
-            )
-        numericalVec_target = np.array(
-            [[self.__word2index__(word) for word in sentence] for sentence in target]
-            )
-        
-        ### Convert the input data to embedded representation
-        max_lengths = np.array([len(sentence) for sentence in input]).max()
-        embedded_matrix, input_seq_lengths = [], []
-        for sentence in numericalVec_input:
-            # embedding
-            embedded_sentence = np.array(
-                [self.embeddings[self.__word2index__(word)] for word in sentence]
-                )
-            # append sequence length
-            input_seq_lengths.append(
-                len(sentence)
-                )
-            # padding
-            if len(sentence) < max_lengths:
-                embedded_sentence = np.c_[embedded_sentence, np.zeros((embedded_sentence.shape[0], max_lengths - self.embeddings.shape[1]))]
-            # append embedded sentence
-            embedded_matrix.append(embedded_sentence)
-        
-        ### Pad the target data
-        max_lengths = np.array([len(sentence) for sentence in target]).max()
-        padded_target, target_seq_lengths = [], []
-        for sentence in numericalVec_target:
-            if len(sentence) < max_lengths:
-                sentence = np.array(sentence)
-            else:
-                sentence = np.c_[np.array(sentence), np.zeros((max_lengths - len(sentence)))]
-            paddet_target, target_seq_lengths = sentence, len(sentence)
-        del numericalVec_target
-        
-        return (np.array(embedded_matrix).float().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
-                np.array(input_seq_lengths),
-                np.array(padded_target).long().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
-                np.array(target_seq_lengths)
-                )
-    
-    def __word2index__(self, word):
-        """
-        :param word:
-            type:
-            description:
-        """
-        try:
-            word2index = self.text_dictionary.word2index[word]
-        except:
-            word2index = self.embeddings.shape[1] - 1
-        return word2index
