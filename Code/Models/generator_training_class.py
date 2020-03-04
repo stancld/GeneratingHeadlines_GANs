@@ -371,9 +371,9 @@ class generator:
         padded_target, target_seq_lengths = [], []
         for sentence in numericalVec_target:
             if len(sentence) < max_lengths:
-                sentence = np._r[np.array(sentence)]
+                sentence = np.array(sentence)
             else:
-                sentence = np.array(sentence, np.zeros((max_lengths - len(sentence),)))
+                sentence = np.array((sentence, np.zeros((max_lengths - len(sentence)))))
             paddet_target, target_seq_lengths = sentence, len(sentence)
         del numericalVec_target
         
