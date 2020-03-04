@@ -86,6 +86,8 @@ def data2PaddedArray(input, target, text_dictionary, embeddings):
             embedded_sentence = np.r_[embedded_sentence, np.zeros((max_lengths - len(sentence), embeddings.shape[1]))]
         # append embedded sentence
         embedded_matrix.append(embedded_sentence)
+        
+    input_seq_lengths = np.array(input_seq_lengths, np.int)
     
     ### Pad the target data
     max_lengths = np.array([len(sentence) for sentence in target]).max()
@@ -98,11 +100,13 @@ def data2PaddedArray(input, target, text_dictionary, embeddings):
             sentence = np.c_[np.array(sentence).reshape((1,-1)), np.zeros((1, max_lengths - len(sentence)))]
         padded_target.append(sentence)
     
+    target_seq_lengths = np.array(target_seq_lengths, np.int)
+    
     del numericalVec_target
     
     return (np.array(embedded_matrix).swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
-            np.array(input_seq_lengths, np.int),
+            input_seq_lengths.reshape(input_seq_lengths.shape[1:]),
             np.array(padded_target, np.int32).swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
-            np.array(target_seq_lengths, np.int)
+            target_seq_lengths.reshape(target_seq_lengths.shape[1:]),
             )
 
