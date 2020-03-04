@@ -321,8 +321,8 @@ class generator:
     
         # trim sequences in individual batches
         for batch in range(n_batches):
-            input_batches[batch] = input_batches[batch, :input_lengths[batch].max(), :, :]
-            target_batches[batch] = target_batches[batch, :target_lengths[batch].max(), :]
+            input_batches[batch] = input_batches[batch, input_lengths[batch].max():, :, :]
+            target_batches[batch] = target_batches[batch, target_lengths[batch].max():, :]
         
         # return prepared data
         return (input_batches, input_lengths,
