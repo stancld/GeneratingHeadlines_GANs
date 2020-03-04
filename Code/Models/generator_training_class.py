@@ -84,7 +84,7 @@ class generator:
         self.loss_function = loss_function().to(device)
     
     def train(self, X_train, y_train, X_val, y_val,
-              X_train_lengths, y_train_Lengths, X_val_lengths, y_val_lengths):
+              X_train_lengths, y_train_lengths, X_val_lengths, y_val_lengths):
         """
         :param X_train:
             type: numpy.array
