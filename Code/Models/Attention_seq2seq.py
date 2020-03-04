@@ -319,8 +319,8 @@ class _Seq2Seq(nn.Module):
         # teacher_forcing_ratio is probability to use teacher forcing
         # e.g. if teacher_forcing_ratio is 0.75 we use teacher forcing 75% of the time
 
-        batch_size = seq2seq_input.shape[1]
-        trg_len = target.shape[0]
+        batch_size = seq2seq_input[0].shape[1]
+        trg_len = target[0].shape[0]
         trg_vocab_size = self.decoder.output_dim
 
         # tensor to store decoder outputs
@@ -332,7 +332,7 @@ class _Seq2Seq(nn.Module):
         encoder_outputs, hidden = self.encoder(seq2seq_input)
 
         # check: make dimension consistent
-        dec_input = target[0]
+        dec_input = target[0][0]
         dec_input = dec_input.unsqueeze(0)
         # print('dec_input dim:',dec_input.size())
 
