@@ -318,7 +318,9 @@ class generator:
         target_lengths = np.array(
             np.split(target_lengths[:(n_batches * self.batch_size)], n_batches, axis = 0)
             )
-    
+        # return prepared data
+        return (input_batches.shape, input_lengths.shape,
+                target_batches.shape, target_lengths.shape)
         # trim sequences in individual batches
         for batch in range(n_batches):
             input_batches[batch] = input_batches[batch, input_lengths[batch].max():, :, :]
