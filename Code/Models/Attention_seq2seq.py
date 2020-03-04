@@ -240,7 +240,7 @@ class _Decoder(nn.Module):
         # hidden = [batch size, dec hid dim]
         # encoder_outputs = [enc_seq_len, batch size, enc hid dim * 2]
 
-        embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
+        #embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
 
         attention = self.attention(hidden, encoder_outputs) # attention = [batch size, enc_seq_len]
 
@@ -330,7 +330,7 @@ class _Seq2Seq(nn.Module):
         # encoder_outputs is all hidden states of the input sequence, back and forwards
         # hidden is the final forward and backward hidden states, passed through a linear layer
         encoder_outputs, hidden = self.encoder(seq2seq_input)
-        return encoder_outputs, hidden
+        
         # check: make dimension consistent
         dec_input = target[0][0]
         dec_input = dec_input.unsqueeze(0)
