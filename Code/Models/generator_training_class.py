@@ -362,7 +362,7 @@ class generator:
             # padding
             if len(sentence) < max_lengths:
                 print(embedded_sentence.shape)
-                embedded_sentence = np.c_[embedded_sentence, np.zeros((max_lengths - embedded_sentence.shape[0], self.embeddings.shape[1]))]
+                embedded_sentence = np.c_[embedded_sentence, np.zeros((embedded_sentence.shape[0], max_lengths - self.embeddings.shape[1]))]
             # append embedded sentence
             embedded_matrix.append(embedded_sentence)
         del numericalVec_input
