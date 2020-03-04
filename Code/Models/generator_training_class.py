@@ -14,6 +14,7 @@ Collaborators:
     - Zakhar Borok`
 """
 
+# ----- Settings -----
 import numpy as np
 import pandas as pd
 import torch
@@ -21,13 +22,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+exec(open('Code/Models/Attention_seq2seq.py').read())
+# ----- Settings -----
 
 class generator:
     """
     """
-    def __init__(self, model = _Seq2Seq, loss_function = nn.NLL,
-                 optimiser = optim.Adam, batch_size = 128, 
-                 text_dictionary = text_dictionary, embeddings = pre_train_weight, 
+    def __init__(self, model, loss_function,
+                 optimiser, batch_size, 
+                 text_dictionary, embeddings, 
                  **kwargs):
         """
         :param model:
@@ -98,10 +101,12 @@ class generator:
         ### generate batches
         # training data
         (input_train, input_train_lengths,
-         target_train, target_train_lengths) = self._generate_batches(X_train, y_train)
+         target_train, target_train_lengths) = self._generate_batches(input = X_train,
+                                                                      target = y_train)
         # validation data
         (input_val, input_val_lengths,
-         target_val, target_val_lengths) = self._generate_batches(X_val, y_val)
+         target_val, target_val_lengths) = self._generate_batches(input = X_val,
+                                                                  target = y_val)
         
         # Initialize empty lists for training and validation loss + put best_val_loss = +infinity
         self.train_losses, self.val_losses = [], []
@@ -244,7 +249,6 @@ class generator:
         
         return val_loss
     
-    @staticmethod
     def _generate_batches(self, input, target):
         """
         :param input:
@@ -267,7 +271,6 @@ class generator:
             type:
             description:
         """
-        %%time
         # determine a number of batches
         n_batches = input.shape[0] // self.batch_size
         
@@ -278,7 +281,7 @@ class generator:
         (padded_input, 
          input_lengths,
          padded_target,
-         target_lengths) = self._data2Paddedarray(input, target)
+         target_lengths) = self._data2PaddedArray(input, target)
         
         # Generate input and target batches
             #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
@@ -305,9 +308,7 @@ class generator:
         # return prepared data
         return (input_batches, input_lengths,
                 target_batches, target_lenghts)
-        
-        
-    @staticmethod    
+               
     def _data2PaddedArray(self, input, target):
         """
         :param input:
@@ -332,10 +333,10 @@ class generator:
         """
         # Create a vector of integers representing our text
         numericalVec_input = np.array(
-            [[self.text_dictionary.word2index[word] for word in sentence] for sentence in input]
+            [[self.__word2index__(word) for word in sentence] for sentence in input]
             )
         numericalVec_target = np.array(
-            [[self.text_dictionary.word2index[word] for word in sentence] for sentence in target]
+            [[self.__word2index__(word) for word in sentence] for sentence in target]
             )
         
         ### Convert the input data to embedded representation
@@ -344,14 +345,14 @@ class generator:
         for sentence in numericalVec_input:
             # embedding
             embedded_sentence = np.array(
-                [self.embeddings[self.text_dictionary.word2index[word]] for word in sentence]
+                [self.embeddings[self.__word2index__(word)] for word in sentence]
                 )
             # append sequence length
             input_seq_lengths.append(
-                sentence.shape[0]
+                len(sentence)
                 )
             # padding
-            if sentence.shape[0] < max_lentghts:
+            if len(sentence) < max_lengths:
                 embedded_sentence = np.r_[embedded_sentence, np.zeros((max_lengths - embedded_sentence.shape[0], self.embeddings.shape[1]))]
             # append embedded sentence
             embedded_matrix.append(embedded_sentence)
@@ -360,11 +361,11 @@ class generator:
         max_lengths = np.array([len(sentence) for sentence in target]).max()
         padded_target, target_seq_lengths = [], []
         for sentence in numericalVec_target:
-            if sentence.shape[0] < max_lentghts:
+            if len(sentence) < max_lengths:
                 sentence = np._r[np.array(sentence)]
             else:
                 sentence = np.array(sentence, np.zeros((max_lengths - len(sentence),)))
-            paddet_target, target_seq_lengths = sentence, sentence.shape[0]
+            paddet_target, target_seq_lengths = sentence, len(sentence)
         
         return (np.array(embedded_matrix).float().swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
                 np.array(seq_lengths),
@@ -372,19 +373,14 @@ class generator:
                 np.array(target_seq_lengths)
                 )
     
-    def _push_to_repo(self,):
+    def __word2index__(self, word):
         """
+        :param word:
+            type:
+            description:
         """
-        !git remote rm origin
-        !git remote add origin https://gansforlife:dankodorkamichaelzak@github.com/stancld/GeneratingHeadlines_GANs.git
-        !git checkout master
-        !git pull origin master
-        !git branch models_branch
-        !git checkout models_branch
-        !git add .
-        !git commit -m "model state update"
-        !git checkout master
-        !git merge models_branch
-        !git push -u origin master
-                
-            
+        try:
+            word2index = self.text_dictionary.word2index[word]
+        except:
+            word2index = self.embeddings.shape[1] - 1
+        return word2index
