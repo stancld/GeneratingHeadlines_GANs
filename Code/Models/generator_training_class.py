@@ -151,7 +151,7 @@ class generator:
                                                           batch_first = False,
                                                           enforce_sorted = False).to(self.device)
                 output = self.model(seq2seq_input = input, target = target,
-                                    teacher_forcing_ratio = self.teacher_forcing_ratio
+                                    teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
                 del input
                 # Pack output and target padded sequence
@@ -243,7 +243,7 @@ class generator:
                                                       batch_first = False,
                                                       enforce_sorted = False).to(self.device)
             output = self.model(seq2seq_input = input, target = target,
-                                teacher_forcing_ratio = self.teacher_forcing_ratio
+                                teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                 )
             del input
             # Pack output and target padded sequence
