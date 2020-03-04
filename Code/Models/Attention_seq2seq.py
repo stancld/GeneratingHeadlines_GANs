@@ -171,13 +171,13 @@ class _Attention(nn.Module):
         hidden = hidden.unsqueeze(1).repeat(1, enc_seq_len, 1)
         
         encoder_outputs = encoder_outputs.permute(1, 0, 2)
-        print(encoder_outputs.shape)
+    
         # hidden = [batch size, enc_seq_len, dec hid dim]
         # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
 
         energy = torch.tanh(
             self.attn(torch.cat((hidden, encoder_outputs), dim=2))) # energy = [batch size, enc_seq_len, dec hid dim]
-
+        return energt
         attention = self.v(energy).squeeze(2)   # attention= [batch size, enc_seq_len]
 
         return F.softmax(attention, dim=1)
@@ -245,7 +245,7 @@ class _Decoder(nn.Module):
         #embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
 
         attention = self.attention(hidden, encoder_outputs) # attention = [batch size, enc_seq_len]
-
+        return attention
         attention = attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
 
         encoder_outputs = encoder_outputs.permute(1, 0, 2)  # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
@@ -341,7 +341,8 @@ class _Seq2Seq(nn.Module):
         for t in range(1, trg_len):
             # insert dec_input token embedding, previous hidden state and all encoder hidden states
             # receive output tensor (predictions) and new hidden state
-            output, hidden = self.decoder(dec_input, hidden, encoder_outputs)
+            #output, hidden = self.decoder(dec_input, hidden, encoder_outputs)
+            return self.decoder(dec_input, hidden, encoder_outputs)
 
             # place predictions in a tensor holding predictions for each token
             outputs[t] = output
