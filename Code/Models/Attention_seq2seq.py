@@ -245,11 +245,11 @@ class _Decoder(nn.Module):
         #embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
 
         attention = self.attention(hidden, encoder_outputs) # attention = [batch size, enc_seq_len]
-        return attention
+        
         attention = attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
 
         encoder_outputs = encoder_outputs.permute(1, 0, 2)  # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
-
+        return encoder_outputs
         weighted = torch.bmm(attention, encoder_outputs)    # weighted = [batch size, 1, enc hid dim * 2]
 
         weighted = weighted.permute(1, 0, 2) # weighted = [1, batch size, enc hid dim * 2]
