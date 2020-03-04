@@ -147,8 +147,8 @@ class generator:
                 ## FORWARD PASS
                 # Prepare RNN-edible input - i.e. pack padded sequence
                 # trim input, target
-                input = input[seq_length_input:]
-                target = target[seq_length_target:]
+                input = input[:seq_length_input.max()]
+                target = target[:seq_length_target.max()]
                 
                 input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
                                                           lengths = seq_length_input,
