@@ -105,7 +105,7 @@ def data2PaddedArray(input, target, text_dictionary, embeddings):
     
     return (np.array(embedded_matrix).swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
             input_seq_lengths,
-            np.array(padded_target, np.int32).squeeze(1), # => dims: [seq_length, n_examples,]
+            np.array(padded_target, np.int32).squeeze(1).swapaxes(0,1), # => dims: [seq_length, n_examples,]
             target_seq_lengths,
             )
 
