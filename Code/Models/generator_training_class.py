@@ -29,10 +29,8 @@ exec(open('Code/Models/Attention_seq2seq.py').read())
 class generator:
     """
     """
-    def __init__(self, model, loss_function,
-                 optimiser, batch_size, 
-                 text_dictionary, embeddings, 
-                 **kwargs):
+    def __init__(self, model, loss_function, optimiser, batch_size, 
+                 text_dictionary, embeddings, **kwargs):
         """
         :param model:
             type:
@@ -73,6 +71,7 @@ class generator:
         ENC_DROPOUT = kwargs['ENC_DROPOUT']
         DEC_DROPOUT = kwargs['DEC_DROPOUT']
         device = kwargs['device']
+        self.device = device
     
         attn = _Attention(ENC_HID_DIM, DEC_HID_DIM)
         enc = _Encoder(ENC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, ENC_DROPOUT)
@@ -84,7 +83,8 @@ class generator:
         self.optimiser = optimiser(self.model.parameters(), lr=self.grid['learning_rate'])
         self.loss_function = loss_function().to(device)
     
-    def train(self, X_train, y_train, X_val, y_val):
+    def train(self, X_train, y_train, X_val, y_val,
+              X_train_lengths, y_train_Lengths, X_val_lengths, y_val_lengths):
         """
         :param X_train:
             type: numpy.array
@@ -98,17 +98,33 @@ class generator:
         :param y_val:
             type: numpy.array
             description:
+        :param X_train_lengths:
+            type:
+            description:
+        :param y_train_lengths:
+            type:
+            description:
+        :param X_val_lengths:
+            type:
+            description:
+        :param y_val_lengths:
+            type:
+            description:
         """
         ### generate batches
         # training data
         (input_train, input_train_lengths,
          target_train, target_train_lengths) = self._generate_batches(input = X_train,
-                                                                      target = y_train)
-        return (input_train, input_train_lengths, target_train, target_train_lengths)
+                                                                      input_lengths = X_train_lengths,
+                                                                      target = y_train,
+                                                                      target_lengths = y_train_lengths)
+    
         # validation data
         (input_val, input_val_lengths,
          target_val, target_val_lengths) = self._generate_batches(input = X_val,
-                                                                  target = y_val)
+                                                                  input_lengths = X_val_lengths,
+                                                                  target = y_val,
+                                                                  target_lengths = y_val_lengths)
         
         # Initialize empty lists for training and validation loss + put best_val_loss = +infinity
         self.train_losses, self.val_losses = [], []
@@ -133,7 +149,7 @@ class generator:
                 input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
                                                           lengths = seq_length_input,
                                                           batch_first = False,
-                                                          enforce_sorted = False).to(device)
+                                                          enforce_sorted = False).to(self.device)
                 output = self.model(seq2seq_input = input, target = target,
                                     teacher_forcing_ratio = self.teacher_forcing_ratio
                                     )
@@ -154,12 +170,12 @@ class generator:
                 output = nn.utils.rnn.pack_padded_sequence(output,
                                                            lengths = seq_length_loss,
                                                            batch_first = False,
-                                                           enforce_sorted = False).to(device)
+                                                           enforce_sorted = False).to(self.device)
                 
                 target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
                                                            lengths = seq_length_loss,
                                                            batch_first = False,
-                                                           enforce_sorted = False).to(device)
+                                                           enforce_sorted = False).to(self.device)
                 
                 # Compute loss
                 loss = self.loss_function(output[0], target[0])
@@ -254,14 +270,20 @@ class generator:
         
         return val_loss
     
-    def _generate_batches(self, input, target):
+    def _generate_batches(self, input, input_lengths, target, target_lengths):
         """
         :param input:
             type:
             description:
+        :param inout_lengths:
+            type:
+            description:
         :param target:
             type:
-            description
+            description:
+        :param target_lengths:
+            type:
+            description:
             
         :return input_batches:
             type:
@@ -277,16 +299,7 @@ class generator:
             description:
         """
         # determine a number of batches
-        n_batches = input.shape[0] // self.batch_size
-        
-        
-        # transform data to the padded array
-            # inputs are represented in embedded matrices
-            # targets are represented by sequence of corresponding indices
-        (padded_input, 
-         input_lengths,
-         padded_target,
-         target_lengths) = self._data2PaddedArray(input, target)
+        n_batches = input.shape[1] // self.batch_size
         
         # Generate input and target batches
             #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
