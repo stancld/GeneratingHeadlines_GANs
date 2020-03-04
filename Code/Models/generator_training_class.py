@@ -268,12 +268,7 @@ class generator:
             output = nn.utils.rnn.pack_padded_sequence(output,
                                                        lengths = seq_length_loss,
                                                        batch_first = False,
-                                                       enforce_sorted = False).to(device)
-            
-            target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
-                                                       lengths = seq_length_loss,
-                                                       batch_first = False,
-                                                       enforce_sorted = False).to(device)
+                                                       enforce_sorted = False).to(self.device)
             
             # Compute loss
             val_loss += self.loss_function(output[0], target[0]).item()
