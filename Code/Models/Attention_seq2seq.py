@@ -109,6 +109,7 @@ class _Encoder(nn.Module):
         #embedded[0] = self.dropout(enc_input[0])  # embedded = [enc_input_len, batch size, emb_dim]
 
         outputs, hidden = self.rnn(embedded)
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs) 
 
         # outputs = [enc_input len, batch size, hid dim * num directions]
         # hidden = [n layers * num directions, batch size, hid dim]
@@ -163,13 +164,13 @@ class _Attention(nn.Module):
         # hidden = [batch size, dec hid dim]
         # encoder_outputs = [enc_seq_len, batch size, enc hid dim * 2]
 
-        batch_size = encoder_outputs[0].shape[1]
-        enc_seq_len = encoder_outputs[0].shape[0]
+        batch_size = encoder_outputs.shape[1]
+        enc_seq_len = encoder_outputs.shape[0]
         print(hidden.shape)
         # repeat decoder hidden state enc_seq_len times
         hidden = hidden.unsqueeze(1).repeat(1, enc_seq_len, 1)
-        print(hidden.shape, encoder_outputs[0].shape)
-        encoder_outputs = encoder_outputs[0].permute(1, 0, 2)
+        print(hidden.shape, encoder_outputs.shape)
+        encoder_outputs = encoder_outputs.permute(1, 0, 2)
 
         # hidden = [batch size, enc_seq_len, dec hid dim]
         # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
