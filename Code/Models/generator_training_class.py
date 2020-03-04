@@ -346,7 +346,7 @@ class generator:
         numericalVec_target = np.array(
             [[self.__word2index__(word) for word in sentence] for sentence in target]
             )
-        
+        return numericalVec_input, numericalVec_target
         ### Convert the input data to embedded representation
         max_lengths = np.array([len(sentence) for sentence in input]).max()
         embedded_matrix, input_seq_lengths = [], []
