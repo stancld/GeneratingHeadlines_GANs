@@ -146,10 +146,20 @@ class generator:
                 self.optimiser.zero_grad()
                 ## FORWARD PASS
                 # Prepare RNN-edible input - i.e. pack padded sequence
+                # trim input, target
+                input = input[seq_length_input:]
+                target = target[seq_length_target:]
+                
                 input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
                                                           lengths = seq_length_input,
                                                           batch_first = False,
                                                           enforce_sorted = False).to(self.device)
+                target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
+                                                          lengths = seq_length_target,
+                                                          batch_first = False,
+                                                          enforce_sorted = False).to(self.device)
+                return input, target
+                
                 output = self.model(seq2seq_input = input, target = target,
                                     teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
@@ -246,8 +256,7 @@ class generator:
                                                       lengths = seq_length_target,
                                                       batch_first = False,
                                                       enforce_sorted = False).to(self.device)
-            
-            return input, target
+        
             output = self.model(seq2seq_input = input, target = target,
                                 teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                 )
