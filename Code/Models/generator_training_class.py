@@ -185,15 +185,14 @@ class generator:
                 
                 # Compute loss
                 loss = self.loss_function(output[0], target[0])
-                return output[0], target[0]
-                print(loss.item())
-                del output, target
+                return loss
                 
                 ### BACKWARD PASS
                 # Make update step w.r.t. clipping gradient
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grid['clip'])
                 self.optimiser.step()
+                del output, target
                 
                 self.epoch_loss += loss.item()
            
