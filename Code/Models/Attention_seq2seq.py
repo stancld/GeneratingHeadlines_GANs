@@ -415,10 +415,10 @@ class _Seq2Seq(nn.Module):
             top1 = output.argmax(1)
             top1 = top1.unsqueeze(1)
                 
-            return top1
             # if teacher forcing, use actual next token as next input
             # if not, use predicted token
             dec_input = target[t] if teacher_force else top1
+            return dec_input
             dec_input = dec_input.unsqueeze(1).float()
         return outputs
 
