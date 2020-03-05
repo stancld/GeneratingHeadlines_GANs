@@ -168,6 +168,7 @@ class generator:
                 seq_length_output = np.array(
                     [seq_length_output.shape[0] if seq_len == 0 else seq_len for seq_len in seq_length_input]
                     )
+                return seq_length_input, seq_length_target
                 # determine seq_length for computation of loss function based on max(seq_lenth_target, seq_length_output)
                 
                 seq_length_loss = np.array(
