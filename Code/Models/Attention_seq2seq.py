@@ -273,7 +273,7 @@ class _Decoder(nn.Module):
         weighted = weighted.permute(1, 0, 2).double() # weighted = [1, batch size, enc hid dim * 2]
 
         # print('embedded',embedded.size())
-        rnn_input = torch.cat((embedded, weighted), dim=2)  # rnn_input = [1, batch size, (enc hid dim * 2) + dec_emb dim]
+        rnn_input = torch.cat((embedded, weighted), dim=2).float()  # rnn_input = [1, batch size, (enc hid dim * 2) + dec_emb dim]
         
         output, hidden = self.rnn(rnn_input, hidden.unsqueeze(0))
 
