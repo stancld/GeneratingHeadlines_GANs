@@ -260,7 +260,7 @@ class _Decoder(nn.Module):
             torch.tensor(
                 [self.embeddings[x] for x in dec_input]
                 ).to(self.device)
-            ).unsqueeze(0)
+            ).float().unsqueeze(0)
         
         attention = (
             self.attention(hidden, encoder_outputs, mask)
@@ -288,8 +288,8 @@ class _Decoder(nn.Module):
 
         embedded = embedded.squeeze(0)
         output = output.squeeze(0)
-        weighted = weighted.squeeze(0)
-        return embedded, output, weighted
+        weighted = weighted.squeeze(0).float()
+        
         prediction = self.fc_out(
             torch.cat((output, weighted, embedded), dim=1))
 
