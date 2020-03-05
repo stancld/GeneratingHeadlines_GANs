@@ -149,18 +149,9 @@ class generator:
                 # trim input, target
                 input = input[:seq_length_input.max()]
                 target = target[:seq_length_target.max()]
-                
-                input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
-                                                          lengths = seq_length_input,
-                                                          batch_first = False,
-                                                          enforce_sorted = False).to(self.device)
-                target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
-                                                          lengths = seq_length_target,
-                                                          batch_first = False,
-                                                          enforce_sorted = False).to(self.device)
-                
-                output = self.model(seq2seq_input = input, target = target,
-                                    teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
+                 
+                output = self.model(seq2seq_input = input, input_lengths = seq_length_input
+                                    target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
                 return output
                 del input

@@ -90,7 +90,7 @@ class _Encoder(nn.Module):
         self.fc = nn.Linear(enc_hid_dim * 2, dec_hid_dim)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, enc_input):
+    def forward(self, enc_input, input_lengths):
         """
         :param enc_input:
             type:
@@ -105,8 +105,9 @@ class _Encoder(nn.Module):
         """
         # enc_input = [enc_input_len, batch size,emb_dim]
 
-        embedded = enc_input
-        #embedded[0] = self.dropout(enc_input[0])  # embedded = [enc_input_len, batch size, emb_dim]
+        # we have prepared embedded data already during preprocessing
+        embedded = self.dropout(enc_input) # embedded = [enc_input_len, batch size, emb_dim]
+        embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
 
         outputs, hidden = self.rnn(embedded)
         outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs) 
@@ -300,9 +301,12 @@ class _Seq2Seq(nn.Module):
         self.decoder = decoder
         self.device = device
 
-    def forward(self, seq2seq_input, target, teacher_forcing_ratio=0.5):
+    def forward(self, seq2seq_input, input_lengths, target, teacher_forcing_ratio=0.5):
         """
         :param seq2seq_input:
+            type:
+            description:
+        :param input_lengths:
             type:
             description:
         :param target:
@@ -321,8 +325,8 @@ class _Seq2Seq(nn.Module):
         # teacher_forcing_ratio is probability to use teacher forcing
         # e.g. if teacher_forcing_ratio is 0.75 we use teacher forcing 75% of the time
 
-        batch_size = seq2seq_input[0].shape[1]
-        trg_len = target[0].shape[0]
+        batch_size = seq2seq_input.shape[1]
+        trg_len = target.shape[0]
         trg_vocab_size = self.decoder.output_dim
 
         # tensor to store decoder outputs
@@ -331,8 +335,8 @@ class _Seq2Seq(nn.Module):
 
         # encoder_outputs is all hidden states of the input sequence, back and forwards
         # hidden is the final forward and backward hidden states, passed through a linear layer
-        encoder_outputs, hidden = self.encoder(seq2seq_input)
-        print(encoder_outputs.shape, hidden.shape)
+        encoder_outputs, hidden = self.encoder(seq2seq_input, input_lengths)
+        return encoder_outputs, hidden
         # check: make dimension consistent
         return target
         dec_input = target[0][0]
