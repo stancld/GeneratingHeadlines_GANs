@@ -336,7 +336,7 @@ class _Seq2Seq(nn.Module):
         # encoder_outputs is all hidden states of the input sequence, back and forwards
         # hidden is the final forward and backward hidden states, passed through a linear layer
         encoder_outputs, hidden = self.encoder(seq2seq_input, input_lengths)
-        return encoder_outputs, hidden
+        
         # check: make dimension consistent
         return target
         dec_input = target[0][0]
