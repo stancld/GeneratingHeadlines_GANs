@@ -419,6 +419,7 @@ class _Seq2Seq(nn.Module):
             # if not, use predicted token
             dec_input = target[t] if teacher_force else top1
             dec_input = dec_input.squeeze(1).float().cpu()
+            return dec_input
         return outputs
 
     def save(self, name_path):
