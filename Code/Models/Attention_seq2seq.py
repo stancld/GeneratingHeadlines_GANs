@@ -261,7 +261,7 @@ class _Decoder(nn.Module):
                 [self.embeddings[x] for x in dec_input]
                 ).to(self.device)
             ).float().unsqueeze(0)
-        print(embedded.shape)
+
         attention = (
             self.attention(hidden, encoder_outputs, mask)
             ).unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
@@ -403,9 +403,8 @@ class _Seq2Seq(nn.Module):
             # insert dec_input token embedding, previous hidden state and all encoder hidden states
             # receive output tensor (predictions) and new hidden state
             #output, hidden = self.decoder(dec_input, hidden, encoder_outputs)
-            print(hidden.shape)
             output, hidden, a_ = self.decoder(dec_input, hidden, encoder_outputs, mask)
-            print(hidden.shape)
+            
             # place predictions in a tensor holding predictions for each token
             outputs[t] = output
             
@@ -414,7 +413,7 @@ class _Seq2Seq(nn.Module):
 
             # get the highest predicted token from our predictions
             top1 = output.argmax(1)
-            top1 = top1.unsqueeze(1)
+            top1 = top1
                 
             # if teacher forcing, use actual next token as next input
             # if not, use predicted token
