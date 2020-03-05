@@ -345,7 +345,7 @@ class _Seq2Seq(nn.Module):
             description:
         """
         return np.array(
-            [np.c_[np.ones((1, i)), np.zeros((1, i-input_lengths.max() - i))].reshape(-1) for i in input_lengts]
+            [np.c_[np.ones((1, i)), np.zeros((1, i-input_lengths.max() - i))].reshape(-1) for i in input_lengths]
             )
 
     def forward(self, seq2seq_input, input_lengths, target, teacher_forcing_ratio=0.5):
