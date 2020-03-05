@@ -286,12 +286,13 @@ class _Decoder(nn.Module):
         # this also means that output == hidden
         assert (output == hidden).all()
 
-        embedded = embedded.squeeze(0).float()
-        output = output.squeeze(0).float()
-        weighted = weighted.squeeze(0).float()
+        embedded = embedded.squeeze(0)
+        output = output.squeeze(0)
+        weighted = weighted.squeeze(0)
         
         prediction = self.fc_out(
-            torch.cat((output, weighted, embedded), dim=1))
+            torch.cat((output, weighted, embedded), dim=1).float()
+            )
 
         # prediction = [batch size, output dim]
 
