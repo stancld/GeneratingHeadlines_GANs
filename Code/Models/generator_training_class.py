@@ -147,8 +147,12 @@ class generator:
                 ## FORWARD PASS
                 # Prepare RNN-edible input - i.e. pack padded sequence
                 # trim input, target
-                input = input[:seq_length_input.max()]
-                target = target[:seq_length_target.max()]
+                input = torch.from_numpy(
+                    input[:seq_length_input.max()]
+                    ).float().to(self.device)
+                target = torch.from_numpy(
+                    target[:seq_length_target.max()]
+                    ).long().to(self.device)
                  
                 output = self.model(seq2seq_input = input, input_lengths = seq_length_input,
                                     target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
