@@ -286,8 +286,8 @@ class _Decoder(nn.Module):
         # this also means that output == hidden
         assert (output == hidden).all()
 
-        embedded = embedded.squeeze(0)
-        output = output.squeeze(0)
+        embedded = embedded.squeeze(0).float()
+        output = output.squeeze(0).float()
         weighted = weighted.squeeze(0).float()
         
         prediction = self.fc_out(
