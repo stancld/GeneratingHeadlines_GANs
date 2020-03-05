@@ -78,11 +78,11 @@ class generator:
         enc = _Encoder(ENC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, ENC_DROPOUT)
         dec = _Decoder(output_dim=OUTPUT_DIM,  enc_hid_dim=ENC_HID_DIM,
                        dec_hid_dim=DEC_HID_DIM, dropout=DEC_DROPOUT, attention=attn)
-        self.model = model(enc, dec, device).to(device)
+        self.model = model(enc, dec, device, embeddings).to(self.device)
     
         # initialize loss and optimizer
         self.optimiser = optimiser(self.model.parameters(), lr=self.grid['learning_rate'])
-        self.loss_function = loss_function().to(device)
+        self.loss_function = loss_function().to(self.device)
     
     def train(self, X_train, y_train, X_val, y_val,
               X_train_lengths, y_train_lengths, X_val_lengths, y_val_lengths):

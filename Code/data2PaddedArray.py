@@ -96,7 +96,10 @@ def data2PaddedArray(input, target, text_dictionary, embeddings):
         if len(sentence) == max_lengths:
             sentence = np.array(sentence).reshape((1,-1))
         else:
-            sentence = np.c_[np.array(sentence).reshape((1,-1)), np.zeros((1, max_lengths - len(sentence)))]
+            pad_idx = text_dictionary.word2index['<pad>']
+            sentence = np.c_[np.array(sentence).reshape((1,-1)),
+                             np.repeat(pad_idx, max_lengths - len(sentence)).reshape((1, -1))
+                             ]
         padded_target.append(sentence)
     
     target_seq_lengths = np.array(target_seq_lengths, np.int)

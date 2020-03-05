@@ -102,7 +102,7 @@ def text_preprocessing(data, item, contraction_map,
         pass
     
     # split into individual tokens + add special symbols for a start and end of the sentence
-    text = [('<sos> ' + sentence + ' <eos>').split() for sentence in text]
+    text = [('sos ' + sentence + ' eos').split() for sentence in text]
     
     # return numpy array
     return np.array(text)

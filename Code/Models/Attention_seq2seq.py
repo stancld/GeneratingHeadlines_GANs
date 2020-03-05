@@ -148,14 +148,17 @@ class _Attention(nn.Module):
         self.attn = nn.Linear((enc_hid_dim * 2) + dec_hid_dim, dec_hid_dim)
         self.v = nn.Linear(dec_hid_dim, 1, bias=False)
 
-    def forward(self, hidden, encoder_outputs):
+    def forward(self, hidden, encoder_outputs, mask):
         """
         :param hidden:
             type:
             description:
         :param encoder_outputs:
             type:
-            description
+            description:
+        :param mask:
+            type:
+            description:
         
         :return softmax(attention):
             type:
@@ -179,14 +182,17 @@ class _Attention(nn.Module):
         energy = torch.tanh(
             self.attn(torch.cat((hidden, encoder_outputs), dim=2))) # energy = [batch size, enc_seq_len, dec hid dim]
     
-        attention = self.v(energy).squeeze(2)   # attention= [batch size, enc_seq_len]
-
+        attention = (
+            self.v(energy).squeeze(2) 
+            ).mask_filled(mask == 0, 1e-15)         # attention= [batch size, enc_seq_len]
+        
         return F.softmax(attention, dim=1)
     
 class _Decoder(nn.Module):
     """
     """
-    def __init__(self, output_dim, enc_hid_dim,  dec_hid_dim, dropout, attention):
+    def __init__(self, output_dim, enc_hid_dim,  dec_hid_dim, dropout, attention,
+                 embeddings):
         """
         :param output_dim:
             type:
@@ -203,6 +209,9 @@ class _Decoder(nn.Module):
         :param attention:
             type:
             description:
+        :param embeddings:
+            type:
+            description:
         """
         super().__init__()
 
@@ -217,8 +226,9 @@ class _Decoder(nn.Module):
             (enc_hid_dim * 2) + dec_hid_dim + output_dim, output_dim)
 
         self.dropout = nn.Dropout(dropout)
+        self.embeddings = embeddings
 
-    def forward(self, dec_input, hidden, encoder_outputs):
+    def forward(self, dec_input, hidden, encoder_outputs, mask):
         """
         :param dec_input:
             type:
@@ -242,9 +252,13 @@ class _Decoder(nn.Module):
         # hidden = [batch size, dec hid dim]
         # encoder_outputs = [enc_seq_len, batch size, enc hid dim * 2]
 
-        embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
-        return embedded
-        attention = self.attention(hidden, encoder_outputs) # attention = [batch size, enc_seq_len]
+        embedded = self.dropout(
+            torch.tensor(
+                [self.embeddings[x] for x in dec_input]
+                ).to(self.device)
+            )                 # embedded = [1, batch size, dec_emb dim]
+        
+        attention = self.attention(hidden, encoder_outputs, mask) # attention = [batch size, enc_seq_len]
         
         attention = attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
 
@@ -282,7 +296,7 @@ class _Decoder(nn.Module):
 class _Seq2Seq(nn.Module):
     """
     """
-    def __init__(self, encoder, decoder, device):
+    def __init__(self, encoder, decoder, device, embeddings):
         """
         :param encoder:
             type:
@@ -299,8 +313,9 @@ class _Seq2Seq(nn.Module):
         self.encoder = encoder
         self.decoder = decoder
         self.device = device
+        self.embeddings = embeddings
         
-    def __mask(self, input):
+    def __mask__(self, input):
         """
         :param input:
             type:
@@ -310,6 +325,7 @@ class _Seq2Seq(nn.Module):
             type:
             description:
         """
+        return (input != self_)
 
     def forward(self, seq2seq_input, input_lengths, target, teacher_forcing_ratio=0.5):
         """
