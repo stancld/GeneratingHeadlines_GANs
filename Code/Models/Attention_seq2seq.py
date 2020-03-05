@@ -226,7 +226,7 @@ class _Decoder(nn.Module):
         self.rnn = nn.GRU((enc_hid_dim * 2) + embeddings.shape[1], dec_hid_dim)
 
         self.fc_out = nn.Linear(
-            (enc_hid_dim * 2) + dec_hid_dim + output_dim, output_dim)
+            (enc_hid_dim * 2) + dec_hid_dim + embeddings.shape[1], output_dim)
 
         self.dropout = nn.Dropout(dropout)
         self.embeddings = embeddings
