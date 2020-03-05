@@ -77,7 +77,7 @@ class generator:
         attn = _Attention(ENC_HID_DIM, DEC_HID_DIM)
         enc = _Encoder(ENC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, ENC_DROPOUT)
         dec = _Decoder(output_dim=OUTPUT_DIM,  enc_hid_dim=ENC_HID_DIM,
-                       dec_hid_dim=DEC_HID_DIM, dropout=DEC_DROPOUT, attention=attn, embeddings)
+                       dec_hid_dim=DEC_HID_DIM, dropout=DEC_DROPOUT, attention=attn, embeddings=embeddings)
         self.model = model(enc, dec, device, embeddings, text_dictionary).to(self.device)
     
         # initialize loss and optimizer
