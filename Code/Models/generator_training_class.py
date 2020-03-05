@@ -185,6 +185,7 @@ class generator:
                 
                 # Compute loss
                 loss = self.loss_function(output[0], target[0])
+                return output[0], target[0]
                 print(loss.item())
                 del output, target
                 
