@@ -182,9 +182,9 @@ class _Attention(nn.Module):
         energy = torch.tanh(
             self.attn(torch.cat((hidden, encoder_outputs), dim=2))) # energy = [batch size, enc_seq_len, dec hid dim]
     
-        attention = (
-            self.v(energy).squeeze(2) 
-            ).mask_filled(mask == 0, 1e-12)         # attention= [batch size, enc_seq_len]
+        attention = self.v(energy).squeeze(2) # attention= [batch size, enc_seq_len]
+        # ignoring
+        attention = attention.masked_fill(mask == 0, -1e12)
         
         return F.softmax(attention, dim=1)
     
