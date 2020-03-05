@@ -256,7 +256,8 @@ class _Decoder(nn.Module):
             torch.tensor(
                 [self.embeddings[x] for x in dec_input]
                 ).to(self.device)
-            )                 # embedded = [1, batch size, dec_emb dim]
+            )
+        return embedded # embedded = [1, batch size, dec_emb dim]
         
         attention = self.attention(hidden, encoder_outputs, mask) # attention = [batch size, enc_seq_len]
         
@@ -387,14 +388,14 @@ class _Seq2Seq(nn.Module):
         # check: make dimension consistent
         dec_input = target[0]
         mask = self.__mask_from_seq_lengths__(input_lengths)
-        return mask
+        
         # print('dec_input dim:',dec_input.size())
 
         for t in range(1, trg_len):
             # insert dec_input token embedding, previous hidden state and all encoder hidden states
             # receive output tensor (predictions) and new hidden state
             #output, hidden = self.decoder(dec_input, hidden, encoder_outputs)
-            return self.decoder(dec_input, hidden, encoder_outputs)
+            return self.decoder(dec_input, hidden, encoder_outputs, mask)
 
             # place predictions in a tensor holding predictions for each token
             outputs[t] = output
