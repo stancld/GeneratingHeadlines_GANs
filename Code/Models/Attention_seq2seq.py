@@ -264,7 +264,7 @@ class _Decoder(nn.Module):
         
         attention = (
             self.attention(hidden, encoder_outputs, mask)
-            ) attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
+            ).unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
 
         encoder_outputs = encoder_outputs.permute(1, 0, 2)  # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
         
