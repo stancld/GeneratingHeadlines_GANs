@@ -163,9 +163,8 @@ class generator:
                 
                 # Pack output and target padded sequence
                 ## Determine a length of output sequence based on the first occurrence of <eos>
-                seq_length_output = np.array(
-                    [out == self.text_dictionary.word2index['eos'] for out in output.argmax(2)]
-                    ).argmax(1)
+                seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(1)
+                    
                 seq_length_output = np.array(
                     [seq_length_output.shape[0] if seq_len == 0 else seq_len for seq_len in seq_length_input]
                     )
