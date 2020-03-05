@@ -183,7 +183,7 @@ class generator:
                                                            lengths = seq_length_loss,
                                                            batch_first = False,
                                                            enforce_sorted = False).to(self.device)
-                
+                return output, target
                 # Compute loss
                 loss = self.loss_function(output[0], target[0])
                 
