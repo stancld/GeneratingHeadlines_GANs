@@ -184,7 +184,7 @@ class _Attention(nn.Module):
     
         attention = (
             self.v(energy).squeeze(2) 
-            ).mask_filled(mask == 0, 1e-15)         # attention= [batch size, enc_seq_len]
+            ).mask_filled(mask == 0, 1e-12)         # attention= [batch size, enc_seq_len]
         
         return F.softmax(attention, dim=1)
     
@@ -260,13 +260,12 @@ class _Decoder(nn.Module):
             torch.tensor(
                 [self.embeddings[x] for x in dec_input]
                 ).to(self.device)
-            )
-        return embedded # embedded = [1, batch size, dec_emb dim]
+            ).unsqueeze(0)
         
         attention = self.attention(hidden, encoder_outputs, mask) # attention = [batch size, enc_seq_len]
         
         attention = attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
-
+        return attention
         encoder_outputs = encoder_outputs.permute(1, 0, 2)  # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
         
         weighted = torch.bmm(attention, encoder_outputs)    # weighted = [batch size, 1, enc hid dim * 2]
