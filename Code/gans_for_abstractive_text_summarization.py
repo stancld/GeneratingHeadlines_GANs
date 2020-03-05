@@ -106,6 +106,11 @@ def push_to_repo(file, file_path):
 """
 
 # Commented out IPython magic to ensure Python compatibility.
+import os
+import sys
+import time
+import gc
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -141,8 +146,14 @@ run Code/contractions.py
 # code for text_preprocessing()
 run Code/text_preprocessing.py
 
+# code for transforming data to padded array
+run Code/data2PaddedArray.py
+
 # code for the baseline model class _Seq2Seq()
 run Code/Models/Attention_seq2seq.py
+
+# code for the training class
+run Code/Models/generator_training_class.py
 
 """### **Pretrained embeddings**
 
@@ -152,11 +163,12 @@ run Code/Models/Attention_seq2seq.py
 """
 
 # Download and unzip GloVe embedding
-!wget http://nlp.stanford.edu/data/glove.6B.zip
-!unzip glove.6B.zip
+#!wget http://nlp.stanford.edu/data/glove.6B.zip
+#!unzip glove.6B.zip
+
 
 # input your pre-train txt path and parse the data
-path = 'glove.6B.100d.txt'
+path = '../data/glove.6B.100d.txt'
 embed_dict = {}
 with open(path,'r') as f:
   lines = f.readlines()
@@ -165,14 +177,14 @@ with open(path,'r') as f:
     v = np.array(l.split()[1:]).astype('float')
     embed_dict[w] = v
 
-embed_dict['@@_unknown_@@'] = np.zeros(100) # if we use 100 dimension embeddings
+embed_dict['@@_unknown_@@'] = np.random.random(100) # if we use 100 dimension embeddings
 
 # remove all the unnecesary files
-!rm -rf glove.6B.zip
-!rm -rf glove.6B.50d.txt
-!rm -rf glove.6B.100d.txt
-!rm -rf glove.6B.200d.txt
-!rm -rf glove.6B.300d.txt
+#!rm -rf glove.6B.zip
+#!rm -rf glove.6B.50d.txt
+#!rm -rf glove.6B.100d.txt
+#!rm -rf glove.6B.200d.txt
+#!rm -rf glove.6B.300d.txt
 
 # check the length of the dictionary
 len(embed_dict.keys())
@@ -192,6 +204,11 @@ def extract_weight(text_dictionary):
       except:
         word_vector = embed_dict['@@_unknown_@@'].reshape(1,-1) # handle unknown word
       pre_train_weight = np.vstack([pre_train_weight,word_vector])
+    
+    # add for padding
+    elif word_index == len(text_dictionary.index2word.keys()):  
+      pre_train_weight = np.r_[pre_train_weight, np.zeros((1, 100))]
+    
     else:
       word = text_dictionary.index2word[word_index]
       try:
@@ -213,6 +230,11 @@ def extract_weight(text_dictionary):
 data = pd.read_csv('../data/wikihowSep.csv',
                    error_bad_lines = False).astype(str)
 print(data.shape)
+
+data_trimmed = data.iloc[:10000]
+del data
+data = data_trimmed
+del data_trimmed
 
 """##### *Clean flawed examples*
 
@@ -299,7 +321,7 @@ class LangDict:
   def __init__(self):
     self.word2index = {}
     self.word2count = {}
-    self.index2word = {0: "<SOS>", 1: "<EOS>"}
+    self.index2word = {0: "sos", 1: "eos"}
     self.n_words = 2
 
   def add_article(self, article):
@@ -327,7 +349,7 @@ for article in headline_train:
 print("There are {:.0f} distinct words in the untrimmed dictionary".format(len(text_dictionary.word2index.keys())))
 
 # Trim a dictionary to the words with at least 10 occurences within the text
-min_count = 10
+min_count = 1
 subset_words = [word for (word, count) in text_dictionary.word2count.items() if count >= min_count]
 text_dictionary.word2index = {word: i for (word, i) in zip(subset_words, range(len(subset_words)))}
 text_dictionary.index2word = {i: word for (word, i) in zip(subset_words, range(len(subset_words)))}
@@ -336,22 +358,84 @@ text_dictionary.word2count = {word: count for (word, count) in text_dictionary.w
 print("There are {:.0f} distinct words in the trimmed dictionary, where only word with at least {:.0f} occurences are retained".format(len(text_dictionary.word2index.keys()), min_count))
 del min_count, subset_words
 
+"""*Add pad token*"""
+
+pad_idx = max(list(text_dictionary.index2word.keys())) + 1
+
+text_dictionary.word2index['<pad>'] = pad_idx
+text_dictionary.index2word[pad_idx] = '<pad>'
+
+print(len(text_dictionary.index2word.keys()))
+
 """##### *Extract embedding vectors for words we need*"""
 
 # Commented out IPython magic to ensure Python compatibility.
 # %%time
 # pre_train_weight = extract_weight(text_dictionary)
+# #pre_train_weight = np.c_[pre_train_weight, np.zeros(100)]
+# del embed_dict
+# 
+# import gc
+# gc.collect()
 
 """### **Transform the data**"""
 
-# Commented out IPython magic to ensure Python compatibility.
-def ahoj(x):
-#   %%time
-  print(x)
+print(text_dictionary.word2index['<pad>'])
+print(pre_train_weight.shape)
 
-import time
+# Train set
+text_train, text_lengths_train, headline_train, headline_lengths_train = data2PaddedArray(text_train, headline_train, text_dictionary, pre_train_weight)
+# Validation set
+text_val, text_lengths_val, headline_val, headline_lengths_val = data2PaddedArray(text_val, headline_val, text_dictionary, pre_train_weight)
+# Test set
+text_test, text_lengths_test, headline_test, headline_lengths_test = data2PaddedArray(text_test, headline_test, text_dictionary, pre_train_weight)
 
-a = time.time()
-time.sleep(2)
-b = time.time()
-print(b-a)
+"""# **3 Training**"""
+
+!git remote rm origin
+!git remote add origin https://gansforlife:dankodorkamichaelzak@github.com/stancld/GeneratingHeadlines_GANs.git
+!git checkout master
+!git pull origin master
+
+# code for the training class
+run Code/Models/generator_training_class.py
+
+grid = {'max_epochs':3,
+        'batch_size':64,
+        'leanring_rate':1e-3,
+        'clip':10
+      }
+
+##### model ######
+OUTPUT_DIM = 100
+ENC_EMB_DIM = 100
+#DEC_EMB_DIM = 1
+ENC_HID_DIM = 128
+DEC_HID_DIM = 128
+ENC_DROPOUT = 0
+DEC_DROPOUT = 0
+
+Generator = generator(model = _Seq2Seq, loss_function = nn.NLLLoss, optimiser = optim.Adam, batch_size = 64,
+                      text_dictionary = text_dictionary, embeddings = pre_train_weight, max_epochs = 3, learning_rate = 1e-3,
+                      clip = 10, teacher_forcing_ratio = 0.5, OUTPUT_DIM = 100, ENC_HID_DIM = 128, ENC_EMB_DIM = 100,
+                      DEC_HID_DIM = 128, ENC_DROPOUT = 0.0, DEC_DROPOUT = 0.0, device = device)
+
+r = Generator.train(X_train = text_train,
+                y_train = headline_train,
+                X_val = text_val,
+                y_val = headline_val,
+                X_train_lengths = text_lengths_train,
+                y_train_lengths = headline_lengths_train,
+                X_val_lengths = text_lengths_val,
+                y_val_lengths = headline_lengths_val)
+
+r
+
+
+
+
+
+
+
+
+
