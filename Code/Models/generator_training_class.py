@@ -178,7 +178,7 @@ class generator:
                                                            batch_first = False,
                                                            enforce_sorted = False).to(self.device)
                 
-                target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
+                target = nn.utils.rnn.pack_padded_sequence(target,
                                                            lengths = seq_length_loss,
                                                            batch_first = False,
                                                            enforce_sorted = False).to(self.device)
