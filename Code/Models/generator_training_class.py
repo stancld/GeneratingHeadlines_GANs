@@ -164,12 +164,13 @@ class generator:
                 # Pack output and target padded sequence
                 ## Determine a length of output sequence based on the first occurrence of <eos>
                 seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(0).cpu().numpy()
+                seq_length_output += 1
                                     
                 # determine seq_length for computation of loss function based on max(seq_lenth_target, seq_length_output)
-                return seq_length_output, seq_length_target
                 seq_length_loss = np.array(
                     (seq_length_output, seq_length_target)
                     ).max(0)
+                return seq_length_loss
 
                 output = nn.utils.rnn.pack_padded_sequence(output,
                                                            lengths = seq_length_loss,
