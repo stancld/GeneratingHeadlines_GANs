@@ -395,6 +395,7 @@ class _Seq2Seq(nn.Module):
         
         # check: make dimension consistent
         dec_input = target[0]
+        return dec_input
         mask = self.__mask_from_seq_lengths__(input_lengths)
         
         # print('dec_input dim:',dec_input.size())
@@ -418,8 +419,7 @@ class _Seq2Seq(nn.Module):
             # if teacher forcing, use actual next token as next input
             # if not, use predicted token
             dec_input = target[t] if teacher_force else top1
-            return dec_input
-            dec_input = dec_input.unsqueeze(1).float()
+            dec_input = dec_input.squeeze(0).float().cpu()
         return outputs
 
     def save(self, name_path):
