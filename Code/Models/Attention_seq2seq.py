@@ -262,10 +262,10 @@ class _Decoder(nn.Module):
                 ).to(self.device)
             ).unsqueeze(0)
         
-        attention = self.attention(hidden, encoder_outputs, mask) # attention = [batch size, enc_seq_len]
-        
-        attention = attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
-        return attention
+        attention = (
+            self.attention(hidden, encoder_outputs, mask)
+            ) attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
+
         encoder_outputs = encoder_outputs.permute(1, 0, 2)  # encoder_outputs = [batch size, enc_seq_len, enc hid dim * 2]
         
         weighted = torch.bmm(attention, encoder_outputs)    # weighted = [batch size, 1, enc hid dim * 2]
@@ -295,7 +295,7 @@ class _Decoder(nn.Module):
 
         # prediction = [batch size, output dim]
 
-        return prediction, hidden.squeeze(0)
+        return prediction, hidden.squeeze(0), attention.squeeze(1)
     
 class _Seq2Seq(nn.Module):
     """
