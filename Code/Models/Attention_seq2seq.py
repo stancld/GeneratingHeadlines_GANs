@@ -334,6 +334,7 @@ class _Seq2Seq(nn.Module):
         encoder_outputs, hidden = self.encoder(seq2seq_input)
         print(encoder_outputs.shape, hidden.shape)
         # check: make dimension consistent
+        return target
         dec_input = target[0][0]
         dec_input = dec_input.unsqueeze(0)
         # print('dec_input dim:',dec_input.size())
