@@ -413,7 +413,6 @@ class _Seq2Seq(nn.Module):
 
             # get the highest predicted token from our predictions
             top1 = output.argmax(1)
-            top1 = top1
                 
             # if teacher forcing, use actual next token as next input
             # if not, use predicted token
