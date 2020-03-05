@@ -242,9 +242,8 @@ class _Decoder(nn.Module):
         # hidden = [batch size, dec hid dim]
         # encoder_outputs = [enc_seq_len, batch size, enc hid dim * 2]
 
-        embedded = dec_input    
-        #embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
-
+        embedded = self.dropout(dec_input)  # embedded = [1, batch size, dec_emb dim]
+        return embedded
         attention = self.attention(hidden, encoder_outputs) # attention = [batch size, enc_seq_len]
         
         attention = attention.unsqueeze(1)  # attention = [batch size, 1, enc_seq_len]
@@ -257,7 +256,7 @@ class _Decoder(nn.Module):
         
         # print('embedded',embedded.size())
         rnn_input = torch.cat((embedded, weighted), dim=2)  # rnn_input = [1, batch size, (enc hid dim * 2) + dec_emb dim]
-        return rnn_input
+        
         output, hidden = self.rnn(rnn_input, hidden.unsqueeze(0))
 
         # output = [seq len, batch size, dec hid dim * n directions]
@@ -300,6 +299,17 @@ class _Seq2Seq(nn.Module):
         self.encoder = encoder
         self.decoder = decoder
         self.device = device
+        
+    def __mask(self, input):
+        """
+        :param input:
+            type:
+            description:
+        
+        :return mask:
+            type:
+            description:
+        """
 
     def forward(self, seq2seq_input, input_lengths, target, teacher_forcing_ratio=0.5):
         """
@@ -338,9 +348,7 @@ class _Seq2Seq(nn.Module):
         encoder_outputs, hidden = self.encoder(seq2seq_input, input_lengths)
         
         # check: make dimension consistent
-        return target
-        dec_input = target[0][0]
-        dec_input = dec_input.unsqueeze(0)
+        dec_input = target[0]
         # print('dec_input dim:',dec_input.size())
 
         for t in range(1, trg_len):
