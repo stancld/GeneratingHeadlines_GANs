@@ -276,7 +276,7 @@ class _Decoder(nn.Module):
         rnn_input = torch.cat((embedded, weighted), dim=2).float()  # rnn_input = [1, batch size, (enc hid dim * 2) + dec_emb dim]
         
         output, hidden = self.rnn(rnn_input, hidden.unsqueeze(0).float())
-
+        return output, hidden
         # output = [seq len, batch size, dec hid dim * n directions]
         # hidden = [n layers * n directions, batch size, dec hid dim]
 
