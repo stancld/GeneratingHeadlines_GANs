@@ -296,7 +296,7 @@ class _Decoder(nn.Module):
 class _Seq2Seq(nn.Module):
     """
     """
-    def __init__(self, encoder, decoder, device, embeddings):
+    def __init__(self, encoder, decoder, device, embeddings, text_dictionary):
         """
         :param encoder:
             type:
@@ -307,6 +307,12 @@ class _Seq2Seq(nn.Module):
         :param device:
             type:
             description
+        :param embeddings:
+            type:
+            description:
+        :param text_dictionary:
+            type:
+            description:
         """
         super().__init__()
 
@@ -314,6 +320,7 @@ class _Seq2Seq(nn.Module):
         self.decoder = decoder
         self.device = device
         self.embeddings = embeddings
+        self.text_dictionary = text_dictionary
         
     def __mask__(self, input):
         """
@@ -325,7 +332,21 @@ class _Seq2Seq(nn.Module):
             type:
             description:
         """
-        return (input != self_)
+        return (input != self.text_dictionary['<pad>']).permute(1, 0)
+    
+    def __mask_from_seq_lengths__(self, input_lengths):
+        """
+        :param input_lengths:
+            type:
+            description:
+        
+        :return mask:
+            type:
+            description:
+        """
+        return np.array(
+            [np.c_[np.ones((1, i)), np.zeros((1, i-input_lengths.max() - i))].reshape(-1) for i in input_lengts]
+             ])
 
     def forward(self, seq2seq_input, input_lengths, target, teacher_forcing_ratio=0.5):
         """
@@ -365,6 +386,8 @@ class _Seq2Seq(nn.Module):
         
         # check: make dimension consistent
         dec_input = target[0]
+        mask = self.__mask_from_seq_lengths__(input_lengths)
+        return mask
         # print('dec_input dim:',dec_input.size())
 
         for t in range(1, trg_len):
