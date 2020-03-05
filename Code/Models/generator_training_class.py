@@ -185,7 +185,6 @@ class generator:
                 
                 # Compute loss
                 loss = self.loss_function(output[0], target[0])
-                return loss
                 
                 ### BACKWARD PASS
                 # Make update step w.r.t. clipping gradient
