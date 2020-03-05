@@ -158,9 +158,9 @@ class generator:
                 output = self.model(seq2seq_input = input, input_lengths = seq_length_input,
                                     target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
-                output = F.log_softmax(output, dim = 2  )
+                output = F.log_softmax(output, dim = 2)
                 del input
-                
+                return output
                 # Pack output and target padded sequence
                 ## Determine a length of output sequence based on the first occurrence of <eos>
                 seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(0)
