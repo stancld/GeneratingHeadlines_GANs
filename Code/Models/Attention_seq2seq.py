@@ -336,7 +336,9 @@ class _Seq2Seq(nn.Module):
             type:
             description:
         """
-        return (input != self.text_dictionary['<pad>']).permute(1, 0)
+        return torch.tensor(
+            (input != self.text_dictionary['<pad>'])
+            ).permute(1, 0)
     
     def __mask_from_seq_lengths__(self, input_lengths):
         """
@@ -348,8 +350,10 @@ class _Seq2Seq(nn.Module):
             type:
             description:
         """
-        return np.array(
-            [np.c_[np.ones((1, i)), np.zeros((1, input_lengths.max() - i))].reshape(-1) for i in input_lengths]
+        return torch.from_numpy(
+            np.array(
+                [np.c_[np.ones((1, i)), np.zeros((1, input_lengths.max() - i))].reshape(-1) for i in input_lengths]
+                )
             )
 
     def forward(self, seq2seq_input, input_lengths, target, teacher_forcing_ratio=0.5):
