@@ -418,6 +418,7 @@ class _Seq2Seq(nn.Module):
             # if teacher forcing, use actual next token as next input
             # if not, use predicted token
             dec_input = target[t] if teacher_force else top1
+            return top1, dec_input
             dec_input = dec_input.squeeze(0).float().cpu()
         return outputs
 
