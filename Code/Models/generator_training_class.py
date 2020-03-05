@@ -160,20 +160,16 @@ class generator:
                                     )
                 output = F.log_softmax(output, dim = 2)
                 del input
-                return output
+                
                 # Pack output and target padded sequence
                 ## Determine a length of output sequence based on the first occurrence of <eos>
-                seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(0)
-                    
-                seq_length_output = np.array(
-                    [seq_length_output.shape[0] if seq_len == 0 else seq_len for seq_len in seq_length_input]
-                    )
-                return seq_length_input, seq_length_target
+                seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(0).cpu().numpy()
+                                    
                 # determine seq_length for computation of loss function based on max(seq_lenth_target, seq_length_output)
                 
                 seq_length_loss = np.array(
                     (seq_length_output, seq_length_target)
-                    ).max(1)
+                    ).max(0)
 
                 output = nn.utils.rnn.pack_padded_sequence(output,
                                                            lengths = seq_length_loss,
