@@ -170,7 +170,7 @@ class generator:
                 seq_length_loss = np.array(
                     (seq_length_output, seq_length_target)
                     ).max(0)
-                return output, target, seq_length_loss
+                
                 output = nn.utils.rnn.pack_padded_sequence(output,
                                                            lengths = seq_length_loss,
                                                            batch_first = False,
