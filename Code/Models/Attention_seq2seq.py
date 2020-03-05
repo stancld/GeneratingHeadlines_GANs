@@ -192,7 +192,7 @@ class _Decoder(nn.Module):
     """
     """
     def __init__(self, output_dim, enc_hid_dim,  dec_hid_dim, dropout, attention,
-                 embeddings):
+                 embeddings, device):
         """
         :param output_dim:
             type:
@@ -212,6 +212,9 @@ class _Decoder(nn.Module):
         :param embeddings:
             type:
             description:
+        :param device:
+            type:
+            description:
         """
         super().__init__()
 
@@ -227,6 +230,7 @@ class _Decoder(nn.Module):
 
         self.dropout = nn.Dropout(dropout)
         self.embeddings = embeddings
+        self.device = device
 
     def forward(self, dec_input, hidden, encoder_outputs, mask):
         """
