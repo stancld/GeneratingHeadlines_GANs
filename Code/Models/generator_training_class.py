@@ -171,7 +171,7 @@ class generator:
                 # determine seq_length for computation of loss function based on max(seq_lenth_target, seq_length_output)
                 seq_length_loss = np.array(
                     (seq_length_output, seq_length_target)
-                    ).max(0)
+                    ).max(1)
                 return seq_length_loss
                 output = nn.utils.rnn.pack_padded_sequence(output,
                                                            lengths = seq_length_loss,
