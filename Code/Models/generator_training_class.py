@@ -174,7 +174,7 @@ class generator:
                 seq_length_loss = np.array(
                     (seq_length_output.cpu().numpy(), seq_length_target.cpu().numpy())
                     ).max(1)
-                return seq_length_loss
+
                 output = nn.utils.rnn.pack_padded_sequence(output,
                                                            lengths = seq_length_loss,
                                                            batch_first = False,
