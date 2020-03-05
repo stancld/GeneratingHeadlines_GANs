@@ -395,7 +395,6 @@ class _Seq2Seq(nn.Module):
         
         # check: make dimension consistent
         dec_input = target[0]
-        return dec_input
         mask = self.__mask_from_seq_lengths__(input_lengths)
         
         # print('dec_input dim:',dec_input.size())
