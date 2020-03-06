@@ -231,11 +231,6 @@ data = pd.read_csv('../data/wikihowSep.csv',
                    error_bad_lines = False).astype(str)
 print(data.shape)
 
-data_trimmed = data.iloc[:12500]
-del data
-data = data_trimmed
-del data_trimmed
-
 """##### *Clean flawed examples*
 
 <hr>
@@ -243,18 +238,34 @@ del data_trimmed
 - drop examples based on the threshold
 """
 
+max_examples = 200000
 threshold = 0.75
 
+# drop examples with an invalid ratio of length of text and headline
 text_len = [len(str(t)) for t in data.text]
 head_len = [len(str(h)) for h in data.headline]
 
 ratio = [h/t for t, h in zip(text_len, head_len)]
 
-problems = [problem for problem, r in enumerate(ratio) if (r > threshold) & (problem in data.index)]
+problems1 = [problem for problem, r in enumerate(ratio) if (r > threshold) & (problem in data.index)]
+data = data.drop(index = problems1).reset_index().drop('index', axis = 1)
 
-data = data.drop(index = problems)
+# drop too long articles (to avoid struggles with CUDA memory)
+text_len = [len(str(t)) for t in data.text]
 
-del text_len, head_len, ratio, problems
+problems2 = [problem for problem, text_len in enumerate(ratio) if (text_len > 700) & (problem in data.index)]
+data = data.drop(index = problems2)
+
+# some cleaning
+del text_len, head_len, ratio, problems1, problems2
+gc.collect()
+
+# trim the data to have only a subset of the data for our project
+try:
+  data = data[:max_examples]
+except:
+  pass
+
 print(data.shape)
 
 """##### *Pre-process data*"""
@@ -349,7 +360,7 @@ for article in headline_train:
 print("There are {:.0f} distinct words in the untrimmed dictionary".format(len(text_dictionary.word2index.keys())))
 
 # Trim a dictionary to the words with at least 10 occurences within the text
-min_count = 1
+min_count = 3
 subset_words = [word for (word, count) in text_dictionary.word2count.items() if count >= min_count]
 text_dictionary.word2index = {word: i for (word, i) in zip(subset_words, range(len(subset_words)))}
 text_dictionary.index2word = {i: word for (word, i) in zip(subset_words, range(len(subset_words)))}
@@ -372,16 +383,12 @@ print(len(text_dictionary.index2word.keys()))
 # Commented out IPython magic to ensure Python compatibility.
 # %%time
 # pre_train_weight = extract_weight(text_dictionary)
-# #pre_train_weight = np.c_[pre_train_weight, np.zeros(100)]
-# del embed_dict
+# pre_train_weight = np.array(pre_train_weight, dtype = np.float32)
 # 
-# import gc
+# del embed_dict
 # gc.collect()
 
 """### **Transform the data**"""
-
-print(text_dictionary.word2index['<pad>'])
-print(pre_train_weight.shape)
 
 # Train set
 text_train, text_lengths_train, headline_train, headline_lengths_train = data2PaddedArray(text_train, headline_train, text_dictionary, pre_train_weight)
@@ -409,7 +416,6 @@ grid = {'max_epochs':3,
 ##### model ######
 OUTPUT_DIM = len(text_dictionary.index2word.keys())
 ENC_EMB_DIM = 100
-#DEC_EMB_DIM = 1
 ENC_HID_DIM = 128
 DEC_HID_DIM = 128
 ENC_DROPOUT = 0
@@ -429,9 +435,9 @@ Generator.train(X_train = text_train,
                 X_val_lengths = text_lengths_val,
                 y_val_lengths = headline_lengths_val)
 
+emb
 
 
-o.shape
 
 
 
