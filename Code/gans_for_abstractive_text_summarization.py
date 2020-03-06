@@ -231,7 +231,7 @@ data = pd.read_csv('../data/wikihowSep.csv',
                    error_bad_lines = False).astype(str)
 print(data.shape)
 
-data_trimmed = data.iloc[:10000]
+data_trimmed = data.iloc[:12500]
 del data
 data = data_trimmed
 del data_trimmed
@@ -407,7 +407,7 @@ grid = {'max_epochs':3,
       }
 
 ##### model ######
-OUTPUT_DIM = 100
+OUTPUT_DIM = len(text_dictionary.index2word.keys())
 ENC_EMB_DIM = 100
 #DEC_EMB_DIM = 1
 ENC_HID_DIM = 128
@@ -415,12 +415,12 @@ DEC_HID_DIM = 128
 ENC_DROPOUT = 0
 DEC_DROPOUT = 0
 
-Generator = generator(model = _Seq2Seq, loss_function = nn.NLLLoss, optimiser = optim.Adam, batch_size = 64,
-                      text_dictionary = text_dictionary, embeddings = pre_train_weight, max_epochs = 3, learning_rate = 1e-3,
-                      clip = 10, teacher_forcing_ratio = 0.5, OUTPUT_DIM = 100, ENC_HID_DIM = 128, ENC_EMB_DIM = 100,
+Generator = generator(model = _Seq2Seq, loss_function = nn.CrossEntropyLoss, optimiser = optim.Adam, batch_size = 64,
+                      text_dictionary = text_dictionary, embeddings = pre_train_weight, max_epochs = 50, learning_rate = 5e-4,
+                      clip = 10, teacher_forcing_ratio = 0.5, OUTPUT_DIM = OUTPUT_DIM, ENC_HID_DIM = 128, ENC_EMB_DIM = 100,
                       DEC_HID_DIM = 128, ENC_DROPOUT = 0.0, DEC_DROPOUT = 0.0, device = device)
 
-r = Generator.train(X_train = text_train,
+Generator.train(X_train = text_train,
                 y_train = headline_train,
                 X_val = text_val,
                 y_val = headline_val,
@@ -429,9 +429,9 @@ r = Generator.train(X_train = text_train,
                 X_val_lengths = text_lengths_val,
                 y_val_lengths = headline_lengths_val)
 
-r
 
 
+o.shape
 
 
 
