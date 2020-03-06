@@ -191,7 +191,7 @@ class generator:
                 self.optimiser.step()
                 del output, target
                 
-                self.epoch_loss += loss.item()
+                epoch_loss += loss.item()
            
             # Save training loss and validation loss
             self.train_losses.append(epoch_loss)
