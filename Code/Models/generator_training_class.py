@@ -195,20 +195,20 @@ class generator:
            
             # Save training loss and validation loss
             self.train_losses.append(epoch_loss)
-            self.val_losses.append(
-                self._evaluate(input_val, input_val_lengths,
-                               target_val, target_val_lengths)
-                )
+           # self.val_losses.append(
+           #     self._evaluate(input_val, input_val_lengths,
+           #                    target_val, target_val_lengths)
+           #     )
             
             # Store the best model if validation loss improved
-            if self.val_losses[epoch] < self.best_val_loss:
-                self.best_val_loss = self.val_losses[epoch]
-                self.m = copy.deepcopy(self.model)
+            #if self.val_losses[epoch] < self.best_val_loss:
+            #    self.best_val_loss = self.val_losses[epoch]
+            #    self.m = copy.deepcopy(self.model)
             
             # Print the progress
             print(f'Epoch: {epoch+1}:')
             print(f'Train Loss: {self.train_losses[epoch]:.3f}')
-            print(f'Validation Loss: {self.val_losses[epoch]:.3f}')
+            #print(f'Validation Loss: {self.val_losses[epoch]:.3f}')
             
                 
 
