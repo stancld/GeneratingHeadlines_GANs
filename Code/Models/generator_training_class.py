@@ -159,6 +159,7 @@ class generator:
                 output = self.model(seq2seq_input = input, input_lengths = seq_length_input,
                                     target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
+                print('eeeey')
                 output = F.log_softmax(output, dim = 2)
                 del input
                 

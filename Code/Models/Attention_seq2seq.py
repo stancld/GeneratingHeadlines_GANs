@@ -408,12 +408,12 @@ class _Seq2Seq(nn.Module):
 
         # tensor to store decoder outputs
         outputs = torch.zeros(trg_len, batch_size,
-                              trg_vocab_size).to(self.device)
+                              trg_vocab_size)
 
         # encoder_outputs is all hidden states of the input sequence, back and forwards
         # hidden is the final forward and backward hidden states, passed through a linear layer
         encoder_outputs, hidden = self.encoder(seq2seq_input, input_lengths)
-        print('aaaaaaaa')
+        
         # check: make dimension consistent
         dec_input = target[0]
         mask = self.__mask_from_seq_lengths__(input_lengths)
@@ -424,11 +424,11 @@ class _Seq2Seq(nn.Module):
             # insert dec_input token embedding, previous hidden state and all encoder hidden states
             # receive output tensor (predictions) and new hidden state
             #output, hidden = self.decoder(dec_input, hidden, encoder_outputs)
-            print('ooooo')
             output, hidden, a_ = self.decoder(dec_input, hidden, encoder_outputs, mask)
-            
+            # cleaning
+            del a_
             # place predictions in a tensor holding predictions for each token
-            outputs[t] = output
+            outputs[t] = output.cpu()
             
             # decide if we are going to use teacher forcing or not
             teacher_force = np.random.random() < teacher_forcing_ratio
@@ -440,7 +440,8 @@ class _Seq2Seq(nn.Module):
             # if not, use predicted token
             dec_input = target[t] if teacher_force else top1
             dec_input = dec_input.cpu().numpy()
-        return outputs
+            torch.cuda.empty_cache()
+        return outputs.to(self.device)
 
     def save(self, name_path):
         """
