@@ -111,13 +111,13 @@ class _Encoder(nn.Module):
 
         # embedding and dropout layer
         enc_input = enc_input.cpu().numpy()
-        return enc_input, enc_input
         embedded = self.dropout(
             torch.tensor(
                 [[self.embeddings[x] for x in enc_input[:, seq]] for seq in range(enc_input.shape[1])]
                 ).permute(1,0,2).to(self.device)
             ).float() #[enc_input_len, batch size, emb_dim]
-         
+        
+        #pack padded_layers
         embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
 
         outputs, hidden = self.rnn(embedded)
@@ -403,7 +403,6 @@ class _Seq2Seq(nn.Module):
         # encoder_outputs is all hidden states of the input sequence, back and forwards
         # hidden is the final forward and backward hidden states, passed through a linear layer
         encoder_outputs, hidden = self.encoder(seq2seq_input, input_lengths)
-        return encoder_ouputs
         
         # check: make dimension consistent
         dec_input = target[0]
