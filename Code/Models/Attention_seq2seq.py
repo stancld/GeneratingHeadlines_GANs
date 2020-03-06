@@ -207,7 +207,7 @@ class _Attention(nn.Module):
         # ignoring
         attention = attention.masked_fill(mask == 0, -1e12)
         # cleaning
-        del energy, encoder_outputs, hodden
+        del energy, encoder_outputs, hidden
         torch.cuda.empty_cache()
         
         #return
