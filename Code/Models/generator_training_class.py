@@ -146,7 +146,6 @@ class generator:
                                                                           target_train_lengths
                                                                           ):
                 print(epoch+1)
-                print(torch.cuda.memory_summary())
                 # zero gradient
                 self.optimiser.zero_grad()
                 ## FORWARD PASS
@@ -158,15 +157,15 @@ class generator:
                 target = torch.from_numpy(
                     target[:seq_length_target.max()]
                     ).long().to(self.device)
-                print(torch.cuda.memory_summary())                
+                            
                 output = self.model(seq2seq_input = input, input_lengths = seq_length_input,
                                     target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
-                print(torch.cuda.memory_summary())
+                
                 output = F.log_softmax(output, dim = 2)
                 del input
                 torch.cuda.empty_cache()
-                print(torch.cuda.memory_summary())
+                
                 # Pack output and target padded sequence
                 ## Determine a length of output sequence based on the first occurrence of <eos>
                 seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(0).cpu().numpy()
