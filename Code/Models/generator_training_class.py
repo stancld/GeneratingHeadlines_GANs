@@ -186,6 +186,7 @@ class generator:
                                                            enforce_sorted = False).to(self.device)
                 
                 # Compute loss
+                print('looool')
                 loss = self.loss_function(output[0], target[0])
                 
                 ### BACKWARD PASS
@@ -198,7 +199,7 @@ class generator:
                 # clearing
                 del output, target, loss
                 torch.cuda.empty_cache()
-           
+            print('whatsuuuup')
             # Save training loss and validation loss
             self.train_losses.append(epoch_loss/self.n_batches)
            # self.val_losses.append(
