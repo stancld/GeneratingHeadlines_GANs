@@ -2,11 +2,8 @@
 GANs for Abstractive Text Summarization
 Project for Statistical Natural Language Processing (COMP0087)
 University College London
-
 File: Attention_seq2seq.py
-
 Description of our model:
-
 Collaborators:
     - Daniel Stancl
     - Dorota Jagnesakova
@@ -31,7 +28,6 @@ def show_parameter():
     RNN used is GRU
     
     default loss function is MSELoss()
-
     run function: instan_things,
          to instantiate your model, 
             in which you should define the following dictionary parameters
@@ -424,12 +420,7 @@ class _Seq2Seq(nn.Module):
         
         # check: make dimension consistent
         dec_input = target[0]
-        
-        # mask
         mask = self.__mask_from_seq_lengths__(input_lengths)
-        
-        # cleaning
-        torch.cuda().empty_cache()
         
         # print('dec_input dim:',dec_input.size())
 
