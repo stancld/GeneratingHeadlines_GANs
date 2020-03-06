@@ -154,7 +154,7 @@ class generator:
                 target = torch.from_numpy(
                     target[:seq_length_target.max()]
                     ).long().to(self.device)
-                return input, target 
+                return input 
                 output = self.model(seq2seq_input = input, input_lengths = seq_length_input,
                                     target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )

@@ -386,7 +386,7 @@ class _Seq2Seq(nn.Module):
             type:
             description:
         """
-        # seq2seq_input = [seq_len, batch size,Enc_emb_dim]
+        # seq2seq_input = [seq_len, batch size,Enc]
         # target = [trg_len, batch size,output_dim]
         # teacher_forcing_ratio is probability to use teacher forcing
         # e.g. if teacher_forcing_ratio is 0.75 we use teacher forcing 75% of the time
