@@ -194,7 +194,7 @@ class generator:
                 epoch_loss += loss.item()
            
             # Save training loss and validation loss
-            self.train_losses.append(epoch_loss/n_batches)
+            self.train_losses.append(epoch_loss/self.n_batches)
            # self.val_losses.append(
            #     self._evaluate(input_val, input_val_lengths,
            #                    target_val, target_val_lengths)
@@ -308,6 +308,7 @@ class generator:
         """
         # determine a number of batches
         n_batches = padded_input.shape[1] // self.batch_size
+        self.n_batches = n_batches
         
         # Generate input and target batches
             #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
