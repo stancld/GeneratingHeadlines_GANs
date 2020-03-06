@@ -128,7 +128,7 @@ class _Encoder(nn.Module):
         outputs, hidden = self.rnn(embedded)
         #cleaning
         del embedded
-        gc.collect()
+        torch.cuda.empty_cache()
         
         #unpacking
         outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs) 
@@ -206,7 +206,11 @@ class _Attention(nn.Module):
         attention = self.v(energy).squeeze(2) # attention= [batch size, enc_seq_len]
         # ignoring
         attention = attention.masked_fill(mask == 0, -1e12)
+        # cleaning
+        del energy, encoder_outputs, hodden
+        torch.cuda.empty_cache()
         
+        #return
         return F.softmax(attention, dim=1)
     
 class _Decoder(nn.Module):

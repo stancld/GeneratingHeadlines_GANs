@@ -132,6 +132,7 @@ class generator:
         # Initialize empty lists for training and validation loss + put best_val_loss = +infinity
         self.train_losses, self.val_losses = [], []
         self.best_val_loss = float('inf')
+        self.n_batches = input_train.shape[0]
         
         # run the training
         self.model.train()
@@ -144,6 +145,7 @@ class generator:
                                                                           input_train_lengths,
                                                                           target_train_lengths
                                                                           ):
+                print(epoch+1)
                 # zero gradient
                 self.optimiser.zero_grad()
                 ## FORWARD PASS
