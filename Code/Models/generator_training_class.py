@@ -159,7 +159,7 @@ class generator:
                 output = self.model(seq2seq_input = input, input_lengths = seq_length_input,
                                     target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                     )
-                print('eeeey')
+
                 output = F.log_softmax(output, dim = 2)
                 del input
                 
@@ -191,10 +191,11 @@ class generator:
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grid['clip'])
                 self.optimiser.step()
-                del output, target
-                gc.collect()
                 
                 epoch_loss += loss.item()
+                # clearing
+                del output, target, loss
+                torch.cuda.empty_cache()
            
             # Save training loss and validation loss
             self.train_losses.append(epoch_loss/self.n_batches)

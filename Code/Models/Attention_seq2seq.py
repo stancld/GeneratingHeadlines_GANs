@@ -316,7 +316,11 @@ class _Decoder(nn.Module):
             )
 
         # prediction = [batch size, output dim]
-
+        
+        # clearing GPU memory
+        del embedded, output, weighted
+        torch.cuda.empty_cache()
+        
         return prediction, hidden.squeeze(0), attention.squeeze(1)
     
 class _Seq2Seq(nn.Module):
