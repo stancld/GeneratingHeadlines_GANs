@@ -112,7 +112,7 @@ class _Encoder(nn.Module):
         # embedding and dropout layer
         embedded = self.dropout(
             torch.tensor(
-                [self.embeddings[x] for x in enc_input]
+                [self.embeddings[x] for x in enc_input.cpu().numpy()]
                 ).to(self.device)
             ).float() #[enc_input_len, batch size, emb_dim]
         
