@@ -424,7 +424,13 @@ class _Seq2Seq(nn.Module):
         
         # check: make dimension consistent
         dec_input = target[0]
+        
+        # mask
         mask = self.__mask_from_seq_lengths__(input_lengths)
+        
+        # cleaning
+        del target
+        torch.cuda().empty_cache()
         
         # print('dec_input dim:',dec_input.size())
 

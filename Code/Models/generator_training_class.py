@@ -146,6 +146,7 @@ class generator:
                                                                           target_train_lengths
                                                                           ):
                 print(epoch+1)
+                print(torch.cuda.memory_summary())
                 # zero gradient
                 self.optimiser.zero_grad()
                 ## FORWARD PASS
@@ -164,7 +165,7 @@ class generator:
 
                 output = F.log_softmax(output, dim = 2)
                 del input
-                
+                print(torch.cuda.memory_summary())
                 # Pack output and target padded sequence
                 ## Determine a length of output sequence based on the first occurrence of <eos>
                 seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(0).cpu().numpy()
@@ -186,7 +187,7 @@ class generator:
                                                            enforce_sorted = False).to(self.device)
                 
                 # Compute loss
-                print('looool')
+                print(torch.cuda.memory_summary())
                 loss = self.loss_function(output[0], target[0])
                 
                 ### BACKWARD PASS
@@ -199,7 +200,8 @@ class generator:
                 # clearing
                 del output, target, loss
                 torch.cuda.empty_cache()
-            print('whatsuuuup')
+                
+            print(torch.cuda.memory_summary())
             # Save training loss and validation loss
             self.train_losses.append(epoch_loss/self.n_batches)
            # self.val_losses.append(
