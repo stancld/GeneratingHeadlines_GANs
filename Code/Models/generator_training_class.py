@@ -194,7 +194,7 @@ class generator:
                 epoch_loss += loss.item()
            
             # Save training loss and validation loss
-            self.train_losses.append(epoch_loss)
+            self.train_losses.append(epoch_loss/n_batches)
            # self.val_losses.append(
            #     self._evaluate(input_val, input_val_lengths,
            #                    target_val, target_val_lengths)
