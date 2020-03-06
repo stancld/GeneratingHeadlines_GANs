@@ -75,7 +75,7 @@ class generator:
         self.device = device
     
         attn = _Attention(ENC_HID_DIM, DEC_HID_DIM)
-        enc = _Encoder(ENC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, ENC_DROPOUT)
+        enc = _Encoder(ENC_EMB_DIM, ENC_HID_DIM, DEC_HID_DIM, ENC_DROPOUT, embeddings=embeddings)
         dec = _Decoder(output_dim=OUTPUT_DIM,  enc_hid_dim=ENC_HID_DIM,
                        dec_hid_dim=DEC_HID_DIM, dropout=DEC_DROPOUT, attention=attn, embeddings=embeddings,
                        device = device)
