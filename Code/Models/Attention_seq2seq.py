@@ -69,7 +69,7 @@ def show_parameter():
 class _Encoder(nn.Module):
     """
     """
-    def __init__(self, emb_dim, enc_hid_dim, dec_hid_dim, dropout, embeddings):
+    def __init__(self, emb_dim, enc_hid_dim, dec_hid_dim, dropout, embeddings, device):
         """
         :param emb_dim:
             type:
@@ -86,6 +86,9 @@ class _Encoder(nn.Module):
         :param embeddings:
             type:
             description
+        :param device:
+            type:
+            description:
         """
         super().__init__()
         self.rnn = nn.GRU(input_size=emb_dim,
@@ -93,6 +96,7 @@ class _Encoder(nn.Module):
         self.fc = nn.Linear(enc_hid_dim * 2, dec_hid_dim)
         self.dropout = nn.Dropout(dropout)
         self.embeddings = embeddings
+        self.device = device
 
     def forward(self, enc_input, input_lengths):
         """
