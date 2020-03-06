@@ -116,8 +116,7 @@ class _Encoder(nn.Module):
                 [[self.embeddings[x] for x in enc_input[:, seq]] for seq in range(enc_input.shape[1])]
                 ).permute(1,0,2).to(self.device)
             ).float() #[enc_input_len, batch size, emb_dim]
-        
-        
+        return embedded        
         embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
 
         outputs, hidden = self.rnn(embedded)
