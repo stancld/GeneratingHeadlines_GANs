@@ -191,6 +191,7 @@ class generator:
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grid['clip'])
                 self.optimiser.step()
                 del output, target
+                gc.collect()
                 
                 epoch_loss += loss.item()
            

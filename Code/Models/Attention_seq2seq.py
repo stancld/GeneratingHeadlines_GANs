@@ -121,19 +121,17 @@ class _Encoder(nn.Module):
             ).float() #[enc_input_len, batch size, emb_dim]
         
         #pack padded_layers
-        print('cus')
+        
         embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
-        print('ahoj')
+
         # feed through RNN
         outputs, hidden = self.rnn(embedded)
-        print('vole')
         #cleaning
         del embedded
         gc.collect()
         
         #unpacking
         outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs) 
-        print('hovno')
 
         # outputs = [enc_input len, batch size, hid dim * num directions]
         # hidden = [n layers * num directions, batch size, hid dim]
@@ -415,7 +413,7 @@ class _Seq2Seq(nn.Module):
         # encoder_outputs is all hidden states of the input sequence, back and forwards
         # hidden is the final forward and backward hidden states, passed through a linear layer
         encoder_outputs, hidden = self.encoder(seq2seq_input, input_lengths)
-        
+        print('aaaaaaaa')
         # check: make dimension consistent
         dec_input = target[0]
         mask = self.__mask_from_seq_lengths__(input_lengths)
