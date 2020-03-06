@@ -145,7 +145,6 @@ class generator:
                                                                           input_train_lengths,
                                                                           target_train_lengths
                                                                           ):
-                print(epoch+1)
                 # zero gradient
                 self.optimiser.zero_grad()
                 ## FORWARD PASS
@@ -187,7 +186,6 @@ class generator:
                                                            enforce_sorted = False).to(self.device)
                 
                 # Compute loss
-                print(torch.cuda.memory_summary())
                 loss = self.loss_function(output[0], target[0])
                 
                 ### BACKWARD PASS
