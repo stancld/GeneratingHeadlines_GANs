@@ -114,20 +114,26 @@ class _Encoder(nn.Module):
         # enc_input = [enc_input_len, batch size]
 
         # embedding and dropout layer
-        enc_input = enc_input.numpy()
-        print('cus')
         embedded = self.dropout(
             torch.tensor(
                 [[self.embeddings[x] for x in enc_input[:, seq]] for seq in range(enc_input.shape[1])]
                 ).permute(1,0,2).to(self.device)
             ).float() #[enc_input_len, batch size, emb_dim]
-        print('ahoj')
         
         #pack padded_layers
+        print('cus')
         embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
-
+        print('ahoj')
+        # feed through RNN
         outputs, hidden = self.rnn(embedded)
+        print('vole')
+        #cleaning
+        del embedded
+        gc.collect()
+        
+        #unpacking
         outputs, _ = nn.utils.rnn.pad_packed_sequence(outputs) 
+        print('hovno')
 
         # outputs = [enc_input len, batch size, hid dim * num directions]
         # hidden = [n layers * num directions, batch size, hid dim]
