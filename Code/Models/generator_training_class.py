@@ -151,7 +151,7 @@ class generator:
                 # trim input, target
                 input = torch.from_numpy(
                     input[:seq_length_input.max()]
-                    ).long().to(self.device)
+                    ).long()
                 target = torch.from_numpy(
                     target[:seq_length_target.max()]
                     ).long().to(self.device)

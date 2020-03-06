@@ -114,7 +114,7 @@ class _Encoder(nn.Module):
         # enc_input = [enc_input_len, batch size]
 
         # embedding and dropout layer
-        enc_input = enc_input.cpu().numpy()
+        enc_input = enc_input.numpy()
         embedded = self.dropout(
             torch.tensor(
                 [[self.embeddings[x] for x in enc_input[:, seq]] for seq in range(enc_input.shape[1])]
