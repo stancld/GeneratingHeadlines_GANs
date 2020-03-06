@@ -103,10 +103,16 @@ class _Encoder(nn.Module):
             type:
             description:
         """
-        # enc_input = [enc_input_len, batch size,emb_dim]
+        # enc_input = [enc_input_len, batch size]
 
-        # we have prepared embedded data already during preprocessing
-        embedded = self.dropout(enc_input) # embedded = [enc_input_len, batch size, emb_dim]
+        # embedding and dropout layer
+        embedded = self.dropout(
+            torch.tensor(
+                [self.embeddings[x] for x in enc_input]
+                ).to(self.device)
+            ).float() #[enc_input_len, batch size, emb_dim]
+        
+        
         embedded = nn.utils.rnn.pack_padded_sequence(embedded, input_lengths)
 
         outputs, hidden = self.rnn(embedded)

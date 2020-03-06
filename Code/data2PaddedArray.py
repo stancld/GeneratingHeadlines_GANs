@@ -70,24 +70,21 @@ def data2PaddedArray(input, target, text_dictionary, embeddings):
     
     ### Convert the input data to embedded representation
     max_lengths = np.array([len(sentence) for sentence in input]).max()
-    embedded_matrix, input_seq_lengths = [], []
+    padded_input, input_seq_lengths = [], []
     for sentence in numericalVec_input:
-        # embedding
-        embedded_sentence = np.array(
-            [embeddings[__word2index__(word)] for word in sentence]
-            )
-        # append sequence length
-        input_seq_lengths.append(
-            len(sentence)
-            )
-        # padding
-        if len(sentence) < max_lengths:
-            embedded_sentence = np.r_[embedded_sentence, np.zeros((max_lengths - len(sentence), embeddings.shape[1]))]
-        # append embedded sentence
-        embedded_matrix.append(embedded_sentence)
-        
+        input_seq_lengths.append(len(sentence))
+        if len(sentence) == max_lengths:
+            sentence = np.array(sentence).reshape((1,-1))
+        else:
+            pad_idx = text_dictionary.word2index['<pad>']
+            sentence = np.c_[np.array(sentence).reshape((1,-1)),
+                             np.repeat(pad_idx, max_lengths - len(sentence)).reshape((1, -1))
+                             ]
+        padded_input.append(sentence)
+
     input_seq_lengths = np.array(input_seq_lengths, np.int)
-    
+    del numericalVec_input 
+
     ### Pad the target data
     max_lengths = np.array([len(sentence) for sentence in target]).max()
     padded_target, target_seq_lengths = [], []
@@ -106,9 +103,8 @@ def data2PaddedArray(input, target, text_dictionary, embeddings):
     
     del numericalVec_target
     
-    return (np.array(embedded_matrix).swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
+    return (np.array(padded_input, np.int32).squeeze(1).swapaxes(0,1), # => dims: [seq_length, n_examples, embedded_dim]
             input_seq_lengths,
             np.array(padded_target, np.int32).squeeze(1).swapaxes(0,1), # => dims: [seq_length, n_examples,]
             target_seq_lengths,
             )
-

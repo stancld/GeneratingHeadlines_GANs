@@ -314,7 +314,7 @@ class generator:
             #dimension => [total_batchs, seq_length, batch_size, embed_dim], for target embed_dim is irrelevant
                 #seq_length is variable throughout the batches
         input_batches = np.array(
-            np.split(padded_input[:, :(n_batches * self.batch_size), :], n_batches, axis = 1)
+            np.split(padded_input[:, :(n_batches * self.batch_size)], n_batches, axis = 1)
             )
         target_batches = np.array(
             np.split(padded_target[:, :(n_batches * self.batch_size)], n_batches, axis = 1)
