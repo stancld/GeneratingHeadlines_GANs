@@ -18,48 +18,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-### Show parameter
-def show_parameter():
-
-    print(
-        ''' 
-    This is a seq2seq model, embedding should be done before input into this model
-    
-    RNN used is GRU
-    
-    default loss function is MSELoss()
-    run function: instan_things,
-         to instantiate your model, 
-            in which you should define the following dictionary parameters
-    e.g.
-    param = {'max_epochs':64,
-            'learning_rate':1e-3,       
-            'clip':1,                  # clip grad norm
-            'teacher_forcing_ratio':1, # during training
-            'OUTPUT_DIM':1,            # intented output dimension
-            'ENC_EMB_DIM':21,          # embedding space of your input
-            'ENC_HID_DIM':32,          
-            'DEC_HID_DIM':32,          # hidden dimension should be the same
-            'ENC_DROPOUT':0,
-            'DEC_DROPOUT':0,
-            'device':device}
-      
-    Training:
-    seq2seq_running(grid, model, optimiser, lossfunction, X_train, y_train, X_test, y_test, teacher_forcing_ratio)
-    
-    Evaluation:
-    seq2seq_evaluate(model, X_test, y_test, lossfunction)
-    
-    Prediction:
-    model(self, seq2seq_input, target, teacher_forcing_ratio = 0)
-    
-    in which:
-    seq2seq_input = [seq_len, batch size,Enc_emb_dim]
-    target = [trg_len, batch size,output_dim], trg_len is prediction len
-    
-    '''
-    )
-
 
 ### Encoder
 class _Encoder(nn.Module):

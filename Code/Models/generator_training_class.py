@@ -60,6 +60,7 @@ class generator:
         ###---###
         self.grid = {'max_epochs': kwargs['max_epochs'],
                      'learning_rate': kwargs['learning_rate'],
+                     'l2_reg': kwargs['l2_reg'],
                      'clip': kwargs['clip'],
                      # during training
                      'teacher_forcing_ratio': kwargs['teacher_forcing_ratio']
@@ -72,6 +73,10 @@ class generator:
         ENC_DROPOUT = kwargs['ENC_DROPOUT']
         DEC_DROPOUT = kwargs['DEC_DROPOUT']
         device = kwargs['device']
+        
+        self.model_name = kwargs['model_name']
+        self.push_to_repo = kwargs['push_to_repo']
+        
         self.device = device
     
         attn = _Attention(ENC_HID_DIM, DEC_HID_DIM)
@@ -83,7 +88,8 @@ class generator:
         self.model = model(enc, dec, device, embeddings, text_dictionary).to(self.device)
     
         # initialize loss and optimizer
-        self.optimiser = optimiser(self.model.parameters(), lr=self.grid['learning_rate'])
+        self.optimiser = optimiser(self.model.parameters(), lr=self.grid['learning_rate'],
+                                   decay = self.grid['l2_reg'])
         self.loss_function = loss_function().to(self.device)
     
     def train(self, X_train, y_train, X_val, y_val,
@@ -114,6 +120,9 @@ class generator:
             type:
             description:
         """
+        # measure the time to print some output every 10 minutes
+        time_1 = time.time()
+                
         ### generate batches
         # training data
         (input_train, input_train_lengths,
@@ -199,25 +208,43 @@ class generator:
                 del output, target, loss
                 torch.cuda.empty_cache()
                 
-            print(torch.cuda.memory_summary())
+                # print some outputs if desired (i.e., each 10 minuts)
+                time_2 = time.time()
+                if (time_2 - time_1) > 600:
+                    print(torch.cuda.memory_summary())
+                    time_1 = time.time()
+                 
             # Save training loss and validation loss
             self.train_losses.append(epoch_loss/self.n_batches)
-           # self.val_losses.append(
-           #     self._evaluate(input_val, input_val_lengths,
-           #                    target_val, target_val_lengths)
-           #     )
+            
+            self.val_losses.append(
+                self._evaluate(input_val, input_val_lengths,
+                               target_val, target_val_lengths)
+                )
             
             # Store the best model if validation loss improved
-            #if self.val_losses[epoch] < self.best_val_loss:
-            #    self.best_val_loss = self.val_losses[epoch]
-            #    self.m = copy.deepcopy(self.model)
+            if self.val_losses[epoch] < self.best_val_loss:
+                self.best_val_loss = self.val_losses[epoch]
+                # And save the model state
+                self.m = copy.deepcopy(self.model)
+                self.save()
+                
             
             # Print the progress
             print(f'Epoch: {epoch+1}:')
             print(f'Train Loss: {self.train_losses[epoch]:.3f}')
-            #print(f'Validation Loss: {self.val_losses[epoch]:.3f}')
+            print(f'Validation Loss: {self.val_losses[epoch]:.3f}')
+                       
+            # Save training results and push everything to git
+            np.savetxt('{}__train_loss.txt'.format(), X = self.train_losses)
+            np.savetxt('{}__validation_loss.txt'.format(), X = self.val_losses)
+            self.push_to_repo()
             
-                
+            #End training if the model has already converged
+            if epoch >= 10:
+                self.train_losses[epoch] - self.train_losses[epoch-10]
+                statement = "The model has converged after {:.0f} epochs.".format(epoch+1)
+                return statement
 
     def _evaluate(self, input_val, input_val_lengths, target_val, target_val_lengths):
         """
@@ -245,37 +272,40 @@ class generator:
                                                                       input_val_lengths,
                                                                       target_val_lengths
                                                                       ):
+            ## FORWARD PASS
+            # Prepare RNN-edible input - i.e. pack padded sequence
             # trim input, target
-            input = input[seq_length_input:]
-            target = target[seq_length_input:]
-            
-            input = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(input).float(),
-                                                      lengths = seq_length_input,
-                                                      batch_first = False,
-                                                      enforce_sorted = False).to(self.device)
-            target = nn.utils.rnn.pack_padded_sequence(torch.from_numpy(target).long(),
-                                                      lengths = seq_length_target,
-                                                      batch_first = False,
-                                                      enforce_sorted = False).to(self.device)
-        
-            output = self.model(seq2seq_input = input, target = target,
-                                teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
+            input = torch.from_numpy(
+                input[:seq_length_input.max()]
+                ).long()
+            target = torch.from_numpy(
+                target[:seq_length_target.max()]
+                ).long().to(self.device)
+                        
+            output = self.model(seq2seq_input = input, input_lengths = seq_length_input,
+                                target = target, teacher_forcing_ratio = self.grid['teacher_forcing_ratio']
                                 )
+            
+            output = F.log_softmax(output, dim = 2)
             del input
+            torch.cuda.empty_cache()
+            
             # Pack output and target padded sequence
             ## Determine a length of output sequence based on the first occurrence of <eos>
-            seq_length_output = np.array(
-                [out == self.text_dictionary.word2index['<eos>'] for out in output.transpose()]
-                ).argmax(1)
-            seq_length_output = np.array(
-                [seq_length_output.shape[0] if seq_len == 0 else seq_len for seq_len in seq_length_input]
-                )
+            seq_length_output = (output.argmax(2) == self.text_dictionary.word2index['eos']).int().argmax(0).cpu().numpy()
+            seq_length_output += 1
+                                
             # determine seq_length for computation of loss function based on max(seq_lenth_target, seq_length_output)
             seq_length_loss = np.array(
                 (seq_length_output, seq_length_target)
                 ).max(0)
             
             output = nn.utils.rnn.pack_padded_sequence(output,
+                                                       lengths = seq_length_loss,
+                                                       batch_first = False,
+                                                       enforce_sorted = False).to(self.device)
+            
+            target = nn.utils.rnn.pack_padded_sequence(target,
                                                        lengths = seq_length_loss,
                                                        batch_first = False,
                                                        enforce_sorted = False).to(self.device)
@@ -343,3 +373,20 @@ class generator:
         # return prepared data
         return (input_batches, input_lengths,
                 target_batches, target_lengths)
+    
+    def save(self):
+        """
+        :param name_path:
+            type:
+            description:
+        """
+        torch.save(self.m.state_dict(), "{}.pth".format(self.model_name))
+
+    def load(self):
+        """
+        :param name_path:
+            type:
+            description:
+        """
+        self.model.load_state_dict(torch.load("{}.pth".format(self.model_name)))
+        self.model.eval()
