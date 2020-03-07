@@ -219,7 +219,6 @@ class generator:
                     print("{:.0f} - Intermediate loss {:.3f} after {:.2f} % of training examples.".format(epoch+1,
                                                                                                           epoch_loss / batch,
                                                                                                           batch / self.n_batches))
-                    print(torch.cuda.memory_summary())
                     time_1 = time.time()
                  
             # Save training loss and validation loss
