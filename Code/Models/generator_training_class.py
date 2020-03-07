@@ -120,6 +120,8 @@ class generator:
             type:
             description:
         """
+        # measure the time of training
+        start_time = time.time()        
         # measure the time to print some output every 10 minutes
         time_1 = time.time()
                 
@@ -236,8 +238,10 @@ class generator:
             print(f'Validation Loss: {self.val_losses[epoch]:.3f}')
                        
             # Save training results and push everything to git
+            training_GPU_time = [torch.cuda.get_device_name(), time.time() - start_time]
             np.savetxt('Results/{}__train_loss.txt'.format(self.model_name), X = self.train_losses)
             np.savetxt('Results/{}__validation_loss.txt'.format(self.model_name), X = self.val_losses)
+            np.savetxt('Results/{}__training_time.txt'.format(self.model_name), X = self.training_GPU_time)
             self.push_to_repo()
             
             #End training if the model has already converged
