@@ -220,7 +220,11 @@ class generator:
                                                                                                           epoch_loss / batch,
                                                                                                           batch / self.n_batches))
                     print('Total time {:.1f} s.'.format(start_time - time.time()))
+                    torch.save(self.model.state_dict(), "Results/Intermediate_{}.pth".format(self.model_name))
+                    self.push_to_repo
+                    
                     time_1 = time.time()
+                    
                  
             # Save training loss and validation loss
             self.train_losses.append(epoch_loss/self.n_batches)
