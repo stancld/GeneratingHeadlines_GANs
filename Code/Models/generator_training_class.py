@@ -250,8 +250,8 @@ class generator:
             self.push_to_repo()
             
             #End training if the model has already converged
-            if epoch >= 5:
-                if self.train_losses[epoch] > self.train_losses[epoch-5]:
+            if epoch >= 2:
+                if self.train_losses[epoch] > self.train_losses[epoch-2]:
                     statement = "The model has converged after {:.0f} epochs.".format(epoch+1)
                     return statement
 
