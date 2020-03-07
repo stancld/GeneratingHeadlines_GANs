@@ -236,8 +236,8 @@ class generator:
             print(f'Validation Loss: {self.val_losses[epoch]:.3f}')
                        
             # Save training results and push everything to git
-            np.savetxt('{}__train_loss.txt'.format(), X = self.train_losses)
-            np.savetxt('{}__validation_loss.txt'.format(), X = self.val_losses)
+            np.savetxt('Results/{}__train_loss.txt'.format(self.model_name), X = self.train_losses)
+            np.savetxt('Results/{}__validation_loss.txt'.format(self.model_name), X = self.val_losses)
             self.push_to_repo()
             
             #End training if the model has already converged
@@ -380,7 +380,7 @@ class generator:
             type:
             description:
         """
-        torch.save(self.m.state_dict(), "{}.pth".format(self.model_name))
+        torch.save(self.m.state_dict(), "Results/{}.pth".format(self.model_name))
 
     def load(self):
         """
@@ -388,5 +388,8 @@ class generator:
             type:
             description:
         """
-        self.model.load_state_dict(torch.load("{}.pth".format(self.model_name)))
-        self.model.eval()
+        try:
+            self.model.load_state_dict(torch.load("Results/{}.pth".format(self.model_name)))
+            self.model.eval()
+        except:
+            pass
