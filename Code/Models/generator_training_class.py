@@ -150,12 +150,15 @@ class generator:
                 
         for epoch in range(self.grid['max_epochs']):
             epoch_loss = 0
+            batch = 0
             
             for input, target, seq_length_input, seq_length_target in zip(input_train,
                                                                           target_train,
                                                                           input_train_lengths,
                                                                           target_train_lengths
                                                                           ):
+                # counter
+                batch += 1
                 # zero gradient
                 self.optimiser.zero_grad()
                 ## FORWARD PASS
@@ -213,6 +216,9 @@ class generator:
                 # print some outputs if desired (i.e., each 10 minuts)
                 time_2 = time.time()
                 if (time_2 - time_1) > 600:
+                    print("{:.0f} - Intermediate loss {:.3f} after {:.1f} % of training examples.".format(epoch+1,
+                                                                                                          epoch_loss,
+                                                                                                          batch / self.n_batches))
                     print(torch.cuda.memory_summary())
                     time_1 = time.time()
                  
@@ -246,9 +252,9 @@ class generator:
             
             #End training if the model has already converged
             if epoch >= 10:
-                self.train_losses[epoch] - self.train_losses[epoch-10]
-                statement = "The model has converged after {:.0f} epochs.".format(epoch+1)
-                return statement
+                if self.train_losses[epoch] > self.train_losses[epoch-5]:
+                    statement = "The model has converged after {:.0f} epochs.".format(epoch+1)
+                    return statement
 
     def _evaluate(self, input_val, input_val_lengths, target_val, target_val_lengths):
         """
