@@ -210,7 +210,7 @@ class generator:
                 
                 epoch_loss += loss.item()
                 # clearing
-                del output, target, loss
+                del output, target
                 torch.cuda.empty_cache()
                 
                 # print some outputs if desired (i.e., each 10 minuts)
@@ -219,6 +219,7 @@ class generator:
                     print("Epoch {:.0f} - Intermediate loss {:.3f} after {:.2f} % of training examples.".format(epoch+1,
                                                                                                           epoch_loss / batch,
                                                                                                           batch / self.n_batches))
+                    print('Total time {:.1f} s.'.format(start_time - time.time()))
                     time_1 = time.time()
                  
             # Save training loss and validation loss
@@ -246,7 +247,7 @@ class generator:
             training_GPU_time = [torch.cuda.get_device_name(), time.time() - start_time]
             np.savetxt('Results/{}__train_loss.txt'.format(self.model_name), X = self.train_losses)
             np.savetxt('Results/{}__validation_loss.txt'.format(self.model_name), X = self.val_losses)
-            np.savetxt('Results/{}__training_time.txt'.format(self.model_name), X = self.training_GPU_time)
+            np.savetxt('Results/{}__training_time.txt'.format(self.model_name), X = training_GPU_time)
             self.push_to_repo()
             
             #End training if the model has already converged
