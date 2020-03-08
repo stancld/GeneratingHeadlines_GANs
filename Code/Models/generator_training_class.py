@@ -396,7 +396,7 @@ class generator:
             type:
             description:
         """
-        torch.save(self.m.state_dict(), "Results/{}.pth".format(self.model_name))
+        torch.save(self.m.state_dict(), "../data/Results/{}.pth".format(self.model_name))
 
     def load(self):
         """
@@ -405,7 +405,7 @@ class generator:
             description:
         """
         try:
-            self.model.load_state_dict(torch.load("Results/{}.pth".format(self.model_name)))
+            self.model.load_state_dict(torch.load("../data/Results/{}.pth".format(self.model_name)))
             self.model.eval()
         except:
             pass
