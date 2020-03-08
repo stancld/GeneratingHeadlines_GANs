@@ -239,7 +239,8 @@ class generator:
             if self.val_losses[epoch] < self.best_val_loss:
                 self.best_val_loss = self.val_losses[epoch]
                 # And save the model state
-                self.m = copy.deepcopy(self.model)
+                self.m = type(self.model)()
+                self.m.load_state_dict(self.model.state_dict())
                 self.save()
                 
             
