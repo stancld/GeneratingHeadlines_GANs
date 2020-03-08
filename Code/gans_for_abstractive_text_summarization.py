@@ -13,11 +13,11 @@ Original file is located at
 1. Ctrl + Shift + I
 2. Put the code below into the console
 
-function ConnectButton(){
-    console.log("Connect pushed"); 
-    document.querySelector("#connect").click() 
+function ClickConnect(){
+    console.log("Clicked on connect button"); 
+    document.querySelector("colab-connect-button").click()
 }
-setInterval(ConnectButton,60000)
+setInterval(ClickConnect,60000)
 
 # **GANs for Abstractive Text Summarization**
 ## **NLP Group Project**
@@ -252,7 +252,6 @@ print(data.shape)
 
 max_examples = 50000
 max_threshold = 0.75
-min_threshold = 0.75
 
 # drop examples with an invalid ratio of length of text and headline
 text_len = [len(str(t)) for t in data.text]
@@ -260,13 +259,13 @@ head_len = [len(str(h)) for h in data.headline]
 
 ratio = [h/t for t, h in zip(text_len, head_len)]
 
-problems1 = [problem for problem, r in enumerate(ratio) if (r > max_threshold) & (r < min_threshold) & (problem in data.index)]
+problems1 = [problem for problem, r in enumerate(ratio) if (r > max_threshold) & (problem in data.index)]
 data = data.drop(index = problems1).reset_index().drop('index', axis = 1)
 
 # drop too short and long articles (to avoid struggles with CUDA memory)
 text_len = [len(str(t)) for t in data.text]
 
-problems2 = [problem for problem, text_len in enumerate(ratio) if (text_len > 600) & (text_len <= 100) & (problem in data.index)]
+problems2 = [problem for problem, text_len in enumerate(ratio) if (text_len > 600) & (problem in data.index)]
 data = data.drop(index = problems2)
 
 # some cleaning
@@ -373,7 +372,7 @@ for article in headline_train:
 print("There are {:.0f} distinct words in the untrimmed dictionary".format(len(text_dictionary.word2index.keys())))
 
 # Trim a dictionary to the words with at least 10 occurences within the text
-min_count = 3
+min_count = 1
 subset_words = [word for (word, count) in text_dictionary.word2count.items() if count >= min_count]
 text_dictionary.word2index = {word: i for (word, i) in zip(subset_words, range(len(subset_words)))}
 text_dictionary.index2word = {i: word for (word, i) in zip(subset_words, range(len(subset_words)))}
@@ -422,7 +421,7 @@ text_test, text_lengths_test, headline_test, headline_lengths_test = data2Padded
 """
 
 grid = {'max_epochs': 100,
-        'batch_size': 64,
+        'batch_size': 96,
         'learning_rate': 5e-4,
         'clip': 10,
         'l2_reg': 1e-4,
@@ -455,7 +454,7 @@ Generator.train(X_train = text_train,
                 X_val_lengths = text_lengths_val,
                 y_val_lengths = headline_lengths_val)
 
-if
+Generator.model
 
 
 
